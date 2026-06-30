@@ -7,11 +7,21 @@ import { GlideVideo } from "@/remotion/GlideVideo";
 import { FPS, HEIGHT, WIDTH, totalDurationInFrames } from "@/remotion/types";
 import { clipsToGlideProps } from "@/lib/remotion/to-props";
 import type { Clip } from "@/lib/firebase/clips";
+import type { Caption } from "@/lib/firebase/captions";
 
 /** 에디터 미리보기 — 최종 렌더와 동일한 Remotion 컴포지션을 Player로 재생. */
-export function RemotionPreview({ clips }: { clips: Clip[] }) {
+export function RemotionPreview({
+  clips,
+  captions,
+}: {
+  clips: Clip[];
+  captions: Caption[];
+}) {
   const t = useTranslations("editor.preview");
-  const props = useMemo(() => clipsToGlideProps(clips), [clips]);
+  const props = useMemo(
+    () => clipsToGlideProps(clips, captions),
+    [clips, captions],
+  );
   const duration = useMemo(
     () => totalDurationInFrames(props.clips),
     [props.clips],

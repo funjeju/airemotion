@@ -15,9 +15,16 @@ import {
   type CaptionOverrides,
   type Clip,
 } from "@/lib/firebase/clips";
+import {
+  deleteCaption,
+  listCaptions,
+  updateCaption,
+  type Caption,
+} from "@/lib/firebase/captions";
 import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
 import { Inspector } from "@/components/editor/inspector";
+import { CaptionReview } from "@/components/editor/caption-review";
 import { RemotionPreview } from "@/components/editor/remotion-preview";
 
 export default function EditorPage({
@@ -36,7 +43,13 @@ export default function EditorPage({
   const [rendering, setRendering] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [captions, setCaptions] = useState<Caption[]>([]);
+  const [transcribing, setTranscribing] = useState(false);
+  const [captionError, setCaptionError] = useState<string | null>(null);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
+  const captionTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
 
@@ -44,9 +57,13 @@ export default function EditorPage({
     let alive = true;
     (async () => {
       setLoading(true);
-      const items = await listClips(projectId);
+      const [items, caps] = await Promise.all([
+        listClips(projectId),
+        listCaptions(projectId),
+      ]);
       if (!alive) return;
       setClips(items);
+      setCaptions(caps);
       setLoading(false);
     })();
     return () => {
@@ -164,6 +181,56 @@ export default function EditorPage({
     }
   }
 
+  const hasAudioSource = clips.some(
+    (c) => c.type === "audio" || c.type === "video",
+  );
+
+  async function handleTranscribe() {
+    const current = getClientAuth().currentUser;
+    if (!current) return;
+    setTranscribing(true);
+    setCaptionError(null);
+    try {
+      const token = await current.getIdToken();
+      const res = await fetch(`/api/transcribe/${projectId}`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("transcribe failed");
+      const data = (await res.json()) as { captions: Caption[] };
+      setCaptions(
+        [...data.captions].sort((a, b) => a.start - b.start),
+      );
+    } catch {
+      setCaptionError(t("captions.error"));
+    } finally {
+      setTranscribing(false);
+    }
+  }
+
+  function handleCaptionEdit(
+    id: string,
+    patch: Partial<Pick<Caption, "start" | "end" | "text">>,
+  ) {
+    setCaptions((cur) =>
+      cur.map((c) => (c.id === id ? { ...c, ...patch, source: "edited" } : c)),
+    );
+    const timers = captionTimers.current;
+    if (timers.has(id)) clearTimeout(timers.get(id));
+    timers.set(
+      id,
+      setTimeout(() => {
+        updateCaption(projectId, id, patch);
+        timers.delete(id);
+      }, 400),
+    );
+  }
+
+  function handleCaptionDelete(id: string) {
+    setCaptions((cur) => cur.filter((c) => c.id !== id));
+    deleteCaption(projectId, id);
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <Link
@@ -181,7 +248,7 @@ export default function EditorPage({
         </div>
       ) : (
         <div className="mt-6 space-y-6">
-          <RemotionPreview clips={clips} />
+          <RemotionPreview clips={clips} captions={captions} />
 
           <section className="space-y-3">
             <Filmstrip
@@ -203,6 +270,17 @@ export default function EditorPage({
             onOverrides={handleOverrides}
             onAnimation={handleAnimation}
             onDelete={handleDelete}
+          />
+
+          {/* 자동 자막 (Whisper) + 검수 */}
+          <CaptionReview
+            captions={captions}
+            hasAudioSource={hasAudioSource}
+            transcribing={transcribing}
+            error={captionError}
+            onTranscribe={handleTranscribe}
+            onEdit={handleCaptionEdit}
+            onDelete={handleCaptionDelete}
           />
 
           {/* 영상 만들기 (실제 MP4 렌더) */}

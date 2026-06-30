@@ -23,9 +23,17 @@ export type RClip = {
   caption: RCaption;
 };
 
+// Whisper 자동 자막(타임 기반, 전역 타임라인 기준)
+export type RSubtitle = {
+  startMs: number;
+  endMs: number;
+  text: string;
+};
+
 export type GlideVideoProps = {
   clips: RClip[];
   audioSrc: string | null;
+  subtitles: RSubtitle[];
 };
 
 /** 크로스페이드는 인접 클립을 겹치므로 총 길이에서 전환 프레임을 뺀다. */

@@ -101,6 +101,20 @@
       "again": "Render again",
       "error": "Render failed. Please try again.",
       "note": "Combines photos, video, captions, and music into an MP4. May take a while depending on length."
+    },
+    "captions": {
+      "title": "Auto captions",
+      "note": "Generate a caption draft from speech, then review. Korean may have recognition errors.",
+      "generate": "Generate captions",
+      "regenerate": "Regenerate",
+      "transcribing": "Transcribing…",
+      "needAudio": "Upload music (MP3) or a video with speech to auto-generate captions.",
+      "empty": "No captions yet. Try ‘Generate captions’.",
+      "edited": "edited",
+      "start": "Start (s)",
+      "end": "End (s)",
+      "delete": "Delete caption",
+      "error": "Transcription failed. Please try again."
     }
   },
   "common": {

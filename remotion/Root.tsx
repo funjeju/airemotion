@@ -28,7 +28,9 @@ export function RemotionRoot() {
       fps={FPS}
       width={WIDTH}
       height={HEIGHT}
-      defaultProps={{ clips: [], audioSrc: null } satisfies GlideVideoProps}
+      defaultProps={
+        { clips: [], audioSrc: null, subtitles: [] } satisfies GlideVideoProps
+      }
       calculateMetadata={calculateMetadata}
     />
   );

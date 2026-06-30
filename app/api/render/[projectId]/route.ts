@@ -8,6 +8,7 @@ import { adminDb, adminStorage, verifyIdToken } from "@/lib/firebase/admin";
 import { renderProjectVideo } from "@/lib/remotion/render";
 import { clipsToGlideProps } from "@/lib/remotion/to-props";
 import type { Clip } from "@/lib/firebase/clips";
+import type { Caption } from "@/lib/firebase/captions";
 
 export const runtime = "nodejs";
 // ⚠️ 로컬/전용 워커 전용. Vercel 서버리스는 긴 렌더에 부적합(Phase 5에서 Remotion Lambda로 이전).
@@ -40,7 +41,11 @@ export async function POST(
   const clips = clipsSnap.docs
     .map((d) => ({ id: d.id, ...d.data() }) as Clip)
     .sort((a, b) => a.order - b.order);
-  const props = clipsToGlideProps(clips);
+  const captionsSnap = await projectRef.collection("captions").get();
+  const captions = captionsSnap.docs
+    .map((d) => ({ id: d.id, ...d.data() }) as Caption)
+    .sort((a, b) => a.start - b.start);
+  const props = clipsToGlideProps(clips, captions);
   if (props.clips.length === 0) {
     return NextResponse.json({ error: "no-clips" }, { status: 400 });
   }

@@ -4,7 +4,9 @@ import {
   Img,
   interpolate,
   OffthreadVideo,
+  Sequence,
   useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
@@ -13,6 +15,7 @@ import {
   TRANSITION_FRAMES,
   type GlideVideoProps,
   type RClip,
+  type RSubtitle,
 } from "./types";
 
 /** 켄 번스 변환 — CSS 애니메이션 금지, useCurrentFrame+interpolate로 매 프레임 계산. */
@@ -95,7 +98,51 @@ function CaptionView({ caption }: { caption: RClip["caption"] }) {
   );
 }
 
-export function GlideVideo({ clips, audioSrc }: GlideVideoProps) {
+/** Whisper 자동 자막 — 전역 타임라인 기준 시간에 하단 자막 표시. */
+function SubtitleTrack({ subtitles }: { subtitles: RSubtitle[] }) {
+  const { fps } = useVideoConfig();
+  return (
+    <AbsoluteFill>
+      {subtitles.map((s, i) => {
+        const from = Math.round((s.startMs / 1000) * fps);
+        const dur = Math.max(1, Math.round(((s.endMs - s.startMs) / 1000) * fps));
+        if (!s.text.trim()) return null;
+        return (
+          <Sequence key={i} from={from} durationInFrames={dur}>
+            <AbsoluteFill
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                padding: HEIGHT * 0.05,
+              }}
+            >
+              <span
+                style={{
+                  maxWidth: "88%",
+                  textAlign: "center",
+                  color: "#ffffff",
+                  backgroundColor: "rgba(0,0,0,0.6)",
+                  fontSize: Math.round(HEIGHT * 0.042),
+                  lineHeight: 1.3,
+                  fontWeight: 600,
+                  padding: "0.2em 0.6em",
+                  borderRadius: 8,
+                  fontFamily: "Inter, system-ui, sans-serif",
+                }}
+              >
+                {s.text}
+              </span>
+            </AbsoluteFill>
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+}
+
+export function GlideVideo({ clips, audioSrc, subtitles }: GlideVideoProps) {
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
       <TransitionSeries>
@@ -119,6 +166,7 @@ export function GlideVideo({ clips, audioSrc }: GlideVideoProps) {
           return [seq, trans];
         })}
       </TransitionSeries>
+      {subtitles.length > 0 ? <SubtitleTrack subtitles={subtitles} /> : null}
       {audioSrc ? <Audio src={audioSrc} loop /> : null}
     </AbsoluteFill>
   );
