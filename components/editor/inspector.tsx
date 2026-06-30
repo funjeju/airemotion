@@ -13,6 +13,9 @@ export function Inspector({
   onAnimation,
   onDuration,
   onOpenTrim,
+  onAutoCut,
+  autoCutting,
+  autoCutError,
   onDelete,
 }: {
   clip: Clip | null;
@@ -21,6 +24,9 @@ export function Inspector({
   onAnimation: (a: Animation) => void;
   onDuration: (sec: number) => void;
   onOpenTrim: () => void;
+  onAutoCut: () => void;
+  autoCutting: boolean;
+  autoCutError: string | null;
   onDelete: () => void;
 }) {
   const t = useTranslations("editor.inspector");
@@ -106,16 +112,39 @@ export function Inspector({
         </div>
       )}
 
-      {/* 영상 편집(트림/컷) */}
+      {/* 영상 편집(트림/컷) + 자동 컷 */}
       {clip.type === "video" && (
         <div className="mt-4">
-          <button
-            type="button"
-            onClick={onOpenTrim}
-            className="inline-flex items-center gap-2 rounded-[var(--radius)] border border-line px-4 py-2 text-sm text-ink transition hover:border-accent"
-          >
-            ✂ {t("editVideo")}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={onOpenTrim}
+              className="inline-flex items-center gap-2 rounded-[var(--radius)] border border-line px-4 py-2 text-sm text-ink transition hover:border-accent"
+            >
+              ✂ {t("editVideo")}
+            </button>
+            <button
+              type="button"
+              onClick={onAutoCut}
+              disabled={autoCutting}
+              className="inline-flex items-center gap-2 rounded-[var(--radius)] border border-accent px-4 py-2 text-sm font-medium text-accent transition hover:bg-accent-weak disabled:opacity-50"
+            >
+              {autoCutting ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent/40 border-t-accent" />
+                  {t("autoCutting")}
+                </>
+              ) : (
+                <>✨ {t("autoCut")}</>
+              )}
+            </button>
+          </div>
+          <p className="mt-1.5 text-xs text-muted">{t("autoCutHint")}</p>
+          {autoCutError ? (
+            <p className="mt-1.5 text-xs text-render" role="alert">
+              {autoCutError}
+            </p>
+          ) : null}
         </div>
       )}
 

@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/auth-context";
 import { getClientAuth } from "@/lib/firebase/client";
 import {
+  applyAutoCut,
   batchUpdateClips,
   deleteClip,
   listClips,
@@ -80,6 +81,8 @@ export default function EditorPage({
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
   const [mode, setMode] = useState<"simple" | "advanced">("simple");
   const [trimClipId, setTrimClipId] = useState<string | null>(null);
+  const [autoCutting, setAutoCutting] = useState(false);
+  const [autoCutError, setAutoCutError] = useState<string | null>(null);
   const promptTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
@@ -357,6 +360,54 @@ export default function EditorPage({
     setClips(await listClips(projectId)); // 분할 결과(새 클립 포함) 반영
   }
 
+  async function handleAutoCut(clip: Clip) {
+    const current = getClientAuth().currentUser;
+    if (!current) return;
+    setAutoCutting(true);
+    setAutoCutError(null);
+    try {
+      const token = await current.getIdToken();
+      const res = await fetch(`/api/autocut/${projectId}`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ clipId: clip.id }),
+      });
+      if (!res.ok) throw new Error("autocut failed");
+      const { scenes, duration } = (await res.json()) as {
+        scenes: number[];
+        duration: number;
+      };
+      // 컷 지점 → 세그먼트(너무 짧은 구간 제외)
+      const MIN = 1.0;
+      const bounds = Array.from(
+        new Set([
+          0,
+          ...scenes.filter((s) => s > MIN && s < duration - MIN),
+          duration,
+        ]),
+      ).sort((a, b) => a - b);
+      const segments: { start: number; end: number }[] = [];
+      for (let i = 0; i < bounds.length - 1; i++) {
+        if (bounds[i + 1] - bounds[i] >= MIN) {
+          segments.push({ start: bounds[i], end: bounds[i + 1] });
+        }
+      }
+      if (segments.length <= 1) {
+        setAutoCutError(t("autocut.none"));
+        return;
+      }
+      await applyAutoCut(projectId, clip, segments);
+      setClips(await listClips(projectId));
+    } catch {
+      setAutoCutError(t("autocut.error"));
+    } finally {
+      setAutoCutting(false);
+    }
+  }
+
   function handlePromptChange(text: string) {
     setIntentPrompt(text);
     setTone(detectTone(text));
@@ -488,6 +539,9 @@ export default function EditorPage({
                 onAnimation={handleAnimation}
                 onDuration={handleDuration}
                 onOpenTrim={() => selectedClip && setTrimClipId(selectedClip.id)}
+                onAutoCut={() => selectedClip && handleAutoCut(selectedClip)}
+                autoCutting={autoCutting}
+                autoCutError={autoCutError}
                 onDelete={handleDelete}
               />
 

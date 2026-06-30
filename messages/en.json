@@ -103,7 +103,14 @@
       "duration": "Duration",
       "seconds": "sec",
       "editVideo": "Edit video (trim & cut)",
+      "autoCut": "Auto-cut",
+      "autoCutting": "Analyzing…",
+      "autoCutHint": "Finds scene changes and auto-splits the video into multiple clips.",
       "delete": "Delete clip"
+    },
+    "autocut": {
+      "none": "Couldn't find scene changes to split on.",
+      "error": "Auto-cut failed. Please try again."
     },
     "trim": {
       "title": "Edit video",

@@ -213,6 +213,52 @@ export async function splitVideoClip(
   void start; // 가독성용(원본 시작은 유지)
 }
 
+/**
+ * 자동 컷 — 영상 클립을 여러 세그먼트로 분할(같은 소스, 트림 범위만 다름).
+ * 원본은 첫 세그먼트가 되고 나머지는 새 클립으로 추가, 뒤 클립 순서는 밀린다.
+ */
+export async function applyAutoCut(
+  projectId: string,
+  clip: Clip,
+  segments: { start: number; end: number }[],
+): Promise<void> {
+  if (segments.length <= 1) return;
+  const snap = await getDocs(clipsCol(projectId));
+  const batch = writeBatch(getDb());
+  const added = segments.length - 1;
+
+  snap.docs.forEach((d) => {
+    const order = (d.data().order as number) ?? 0;
+    if (order > clip.order) batch.update(d.ref, { order: order + added });
+  });
+
+  // 원본 → 첫 세그먼트
+  batch.update(doc(getDb(), "projects", projectId, "clips", clip.id), {
+    trimStart: segments[0].start,
+    trimEnd: segments[0].end,
+  });
+
+  // 나머지 세그먼트 → 새 클립
+  for (let i = 1; i < segments.length; i++) {
+    const ref = doc(clipsCol(projectId));
+    batch.set(ref, {
+      order: clip.order + i,
+      type: clip.type,
+      storagePath: clip.storagePath,
+      downloadURL: clip.downloadURL,
+      fileName: clip.fileName,
+      durationSec: clip.durationSec,
+      animation: clip.animation,
+      caption: { text: "", overrides: null },
+      trimStart: segments[i].start,
+      trimEnd: segments[i].end,
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  await batch.commit();
+}
+
 /** 톤 자동 적용 등 — 여러 클립의 길이·애니메이션을 한 번에 갱신. */
 export async function batchUpdateClips(
   projectId: string,

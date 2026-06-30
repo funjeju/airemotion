@@ -5,8 +5,12 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
-  // Remotion 렌더 패키지는 Node 네이티브 의존성이 있어 서버 번들에서 제외.
-  serverExternalPackages: ["@remotion/bundler", "@remotion/renderer"],
+  // 네이티브 바이너리·Node 의존 패키지는 서버 번들에서 제외(경로 보존).
+  serverExternalPackages: [
+    "@remotion/bundler",
+    "@remotion/renderer",
+    "ffmpeg-static",
+  ],
 };
 
 export default withNextIntl(nextConfig);
