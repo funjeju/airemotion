@@ -52,6 +52,10 @@
   "editor": {
     "backToDashboard": "대시보드로",
     "loading": "불러오는 중…",
+    "mode": {
+      "simple": "단순",
+      "advanced": "복잡"
+    },
     "upload": {
       "cta": "사진·영상·음악 올리기",
       "hint": "끌어다 놓거나 클릭해서 선택하세요.",

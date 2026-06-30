@@ -76,6 +76,7 @@ export default function EditorPage({
   const [tone, setTone] = useState<Tone>("calm");
   const [applyingTone, setApplyingTone] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  const [mode, setMode] = useState<"simple" | "advanced">("simple");
   const promptTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
@@ -113,6 +114,16 @@ export default function EditorPage({
       alive = false;
     };
   }, [projectId]);
+
+  // 에디터 모드(단순/복잡) — 사용자 환경 설정으로 localStorage에 저장.
+  useEffect(() => {
+    const saved = localStorage.getItem("glide:editorMode");
+    if (saved === "advanced" || saved === "simple") setMode(saved);
+  }, []);
+  function changeMode(next: "simple" | "advanced") {
+    setMode(next);
+    localStorage.setItem("glide:editorMode", next);
+  }
 
   const selectedClip = clips.find((c) => c.id === selectedId) ?? null;
 
@@ -366,12 +377,32 @@ export default function EditorPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <Link
-        href="/dashboard"
-        className="text-sm text-muted transition hover:text-accent"
-      >
-        ← {t("backToDashboard")}
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          href="/dashboard"
+          className="text-sm text-muted transition hover:text-accent"
+        >
+          ← {t("backToDashboard")}
+        </Link>
+
+        {/* 단순/복잡 모드 토글 */}
+        <div className="inline-flex rounded-full border border-line bg-surface p-0.5">
+          {(["simple", "advanced"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => changeMode(m)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                mode === m
+                  ? "bg-accent text-white"
+                  : "text-muted hover:text-ink"
+              }`}
+            >
+              {t(`mode.${m}`)}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {loading ? (
         <p className="mt-10 text-sm text-muted">{t("loading")}</p>
@@ -413,36 +444,41 @@ export default function EditorPage({
             />
           </section>
 
-          <Inspector
-            clip={selectedClip}
-            onCaptionText={handleCaptionText}
-            onOverrides={handleOverrides}
-            onAnimation={handleAnimation}
-            onDuration={handleDuration}
-            onDelete={handleDelete}
-          />
+          {/* ── 복잡 모드 전용: 디테일 편집 ── */}
+          {mode === "advanced" && (
+            <>
+              <Inspector
+                clip={selectedClip}
+                onCaptionText={handleCaptionText}
+                onOverrides={handleOverrides}
+                onAnimation={handleAnimation}
+                onDuration={handleDuration}
+                onDelete={handleDelete}
+              />
 
-          {/* 화면비율 */}
-          <AspectControl value={aspectRatio} onChange={handleAspectChange} />
+              {/* 화면비율 */}
+              <AspectControl value={aspectRatio} onChange={handleAspectChange} />
 
-          {/* 화면 전환 (전체 일관 적용) */}
-          <TransitionControl
-            type={transition.type}
-            direction={transition.direction}
-            speed={transition.speed}
-            onChange={handleTransitionChange}
-          />
+              {/* 화면 전환 (전체 일관 적용) */}
+              <TransitionControl
+                type={transition.type}
+                direction={transition.direction}
+                speed={transition.speed}
+                onChange={handleTransitionChange}
+              />
 
-          {/* 자동 자막 (Whisper) + 검수 */}
-          <CaptionReview
-            captions={captions}
-            hasAudioSource={hasAudioSource}
-            transcribing={transcribing}
-            error={captionError}
-            onTranscribe={handleTranscribe}
-            onEdit={handleCaptionEdit}
-            onDelete={handleCaptionDelete}
-          />
+              {/* 자동 자막 (Whisper) + 검수 */}
+              <CaptionReview
+                captions={captions}
+                hasAudioSource={hasAudioSource}
+                transcribing={transcribing}
+                error={captionError}
+                onTranscribe={handleTranscribe}
+                onEdit={handleCaptionEdit}
+                onDelete={handleCaptionDelete}
+              />
+            </>
+          )}
 
           {/* 영상 만들기 (실제 MP4 렌더) */}
           <section className="rounded-2xl border border-line bg-surface p-5">

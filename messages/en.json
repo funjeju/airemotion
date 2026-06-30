@@ -52,6 +52,10 @@
   "editor": {
     "backToDashboard": "Back to dashboard",
     "loading": "Loading…",
+    "mode": {
+      "simple": "Simple",
+      "advanced": "Advanced"
+    },
     "upload": {
       "cta": "Upload photos, videos, music",
       "hint": "Drag & drop, or click to choose.",
