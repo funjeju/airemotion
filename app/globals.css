@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* next-themes(class 전략)와 연동: .dark 클래스가 붙으면 dark: 유틸리티가 동작 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── 디자인 토큰 (docs/05-design-system.md) ── */
+:root {
+  --bg: #f4f6f8; /* 데이라이트 페이퍼 */
+  --surface: #ffffff;
+  --ink: #1a1d21;
+  --muted: #5b6470;
+  --line: #e4e8ec;
+  --accent: #5654d4; /* 인디고 — 시그니처 */
+  --accent-weak: #ececfb;
+  --render: #e8b84b; /* 호박색 — '작동 중' 신호 전용 */
+}
+
+.dark {
+  --bg: #0f1116; /* 푸른기 도는 딥 슬레이트 */
+  --surface: #181b22;
+  --ink: #e6e8ec;
+  --muted: #8a93a0;
+  --line: #262a33;
+  --accent: #7b79f2;
+  --accent-weak: #1f1f3a;
+  --render: #e8b84b;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-weak: var(--accent-weak);
+  --color-render: var(--render);
+
+  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+
+  --radius: 12px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* 접근성: 모션 줄이기 선호 시 드리프트·전환을 정적/즉시로 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 시그니처 모션: 켄 번스 드리프트 (히어로 데모용) */
+@keyframes kenburns-drift {
+  0% {
+    transform: scale(1.04) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.14) translate(-2.5%, -2%);
+  }
+}

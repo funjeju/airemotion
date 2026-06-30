@@ -1,0 +1,31 @@
+{
+  "brand": {
+    "tagline": "Stills, set in motion",
+    "subtitle": "Your photos, clips, and music — made easy. Auto-edited into a polished video without lifting a finger."
+  },
+  "nav": {
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
+  },
+  "home": {
+    "ctaPrimary": "Make video",
+    "ctaSecondary": "How it works",
+    "demoCaption": "A still photo drifts gently to life",
+    "steps": {
+      "upload": "Upload",
+      "uploadDesc": "Drop in your photos, clips, and music all at once.",
+      "arrange": "Auto-arrange",
+      "arrangeDesc": "Order, transitions, and Ken Burns applied for you.",
+      "caption": "Review captions",
+      "captionDesc": "Polish the auto-generated caption draft and confirm.",
+      "render": "Export",
+      "renderDesc": "Download your finished video."
+    }
+  },
+  "common": {
+    "appName": "Glide"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "brand": {
+    "tagline": "사진이 흐르듯, 영상이 됩니다",
+    "subtitle": "올려둔 사진·영상·음악을 가장 쉽게. 손대지 않아도 완성도 있는 영상으로 자동 편집합니다."
+  },
+  "nav": {
+    "language": "언어",
+    "theme": "테마",
+    "themeLight": "라이트",
+    "themeDark": "다크",
+    "themeSystem": "시스템"
+  },
+  "home": {
+    "ctaPrimary": "영상 만들기",
+    "ctaSecondary": "어떻게 동작하나요",
+    "demoCaption": "정지된 사진이 부드럽게 움직입니다",
+    "steps": {
+      "upload": "올리기",
+      "uploadDesc": "사진·영상·음악을 한꺼번에 끌어다 놓으세요.",
+      "arrange": "자동 배열",
+      "arrangeDesc": "순서·전환·켄 번스 효과를 알아서 입힙니다.",
+      "caption": "자막 검수",
+      "captionDesc": "자동 자막 초안을 다듬어 확정합니다.",
+      "render": "영상 출력",
+      "renderDesc": "완성된 영상을 내려받으세요."
+    }
+  },
+  "common": {
+    "appName": "Glide"
+  }
+}
