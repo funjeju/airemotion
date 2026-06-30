@@ -87,6 +87,12 @@ export function Filmstrip({
                   🎵
                 </span>
               )}
+              {/* 자막 미리보기 — 들어간 자막을 클립 하단에 표시(클릭하면 인스펙터에서 수정) */}
+              {clip.caption?.text ? (
+                <span className="absolute inset-x-0 bottom-0 truncate bg-black/55 px-1.5 py-0.5 text-center text-[10px] text-white">
+                  {clip.caption.text}
+                </span>
+              ) : null}
             </div>
             <div className="flex items-center justify-between px-2 py-1.5">
               <span className="text-[11px] text-muted">

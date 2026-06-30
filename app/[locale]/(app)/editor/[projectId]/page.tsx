@@ -386,6 +386,7 @@ export default function EditorPage({
             captions={captions}
             transition={transition}
             aspectRatio={aspectRatio}
+            seekClipId={selectedId}
           />
 
           {/* 영상 분위기(의도 프롬프트) → 톤 자동 적용 */}

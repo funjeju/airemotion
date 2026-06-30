@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { Player } from "@remotion/player";
+import { useEffect, useMemo, useRef } from "react";
+import { Player, type PlayerRef } from "@remotion/player";
 import { useTranslations } from "next-intl";
 import { GlideVideo } from "@/remotion/GlideVideo";
 import {
@@ -23,14 +23,17 @@ export function RemotionPreview({
   captions,
   transition,
   aspectRatio,
+  seekClipId,
 }: {
   clips: Clip[];
   captions: Caption[];
   transition: TransitionSettings;
   aspectRatio: AspectRatio;
+  seekClipId?: string | null;
 }) {
   const t = useTranslations("editor.preview");
   const dims = DIMENSIONS[aspectRatio];
+  const playerRef = useRef<PlayerRef>(null);
   const props = useMemo(
     () => clipsToGlideProps(clips, captions, transition, aspectRatio),
     [clips, captions, transition, aspectRatio],
@@ -43,6 +46,29 @@ export function RemotionPreview({
       ),
     [props.clips, props.transitionType, props.transitionDurationInFrames],
   );
+
+  // 클립을 선택하면 플레이어를 그 클립 시작 지점으로 이동.
+  const visualClips = useMemo(
+    () => clips.filter((c) => c.type === "image" || c.type === "video"),
+    [clips],
+  );
+  useEffect(() => {
+    if (!seekClipId || !playerRef.current) return;
+    const index = visualClips.findIndex((c) => c.id === seekClipId);
+    if (index < 0) return;
+    const transFrames =
+      props.transitionType === "none" ? 0 : props.transitionDurationInFrames;
+    let start = 0;
+    for (let j = 0; j < index; j++) start += props.clips[j].durationInFrames;
+    start = Math.max(0, start - index * transFrames);
+    playerRef.current.seekTo(start);
+  }, [
+    seekClipId,
+    visualClips,
+    props.clips,
+    props.transitionType,
+    props.transitionDurationInFrames,
+  ]);
 
   // 세로(9:16)는 너무 길지 않게 높이를 제한.
   const isPortrait = aspectRatio === "9:16";
@@ -66,6 +92,7 @@ export function RemotionPreview({
   return (
     <div className="flex justify-center overflow-hidden rounded-2xl border border-line bg-black">
       <Player
+        ref={playerRef}
         component={GlideVideo}
         inputProps={props}
         durationInFrames={duration}
