@@ -8,6 +8,7 @@ export type UserProfile = {
   photoURL: string;
   locale: string;
   theme: "light" | "dark" | "system";
+  plan: "free" | "pro"; // 클라우드 렌더 권한
   createdAt: unknown;
 };
 
@@ -29,6 +30,7 @@ export async function ensureUserDoc(
       photoURL: user.photoURL ?? "",
       locale: opts.locale,
       theme: "system",
+      plan: "free",
       createdAt: serverTimestamp(),
     });
     return;

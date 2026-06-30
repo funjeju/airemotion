@@ -225,7 +225,19 @@ export default function EditorPage({
         method: "POST",
         headers: { authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error("render failed");
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        if (data.error === "plan-required") {
+          setRenderError(t("render.planRequired"));
+        } else if (data.error === "cloud-render-unavailable") {
+          setRenderError(t("render.cloudUnavailable"));
+        } else {
+          setRenderError(t("render.error"));
+        }
+        return;
+      }
       const data = (await res.json()) as { url: string };
       setOutputUrl(data.url);
     } catch {

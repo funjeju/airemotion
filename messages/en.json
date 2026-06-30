@@ -159,6 +159,8 @@
       "download": "Download video",
       "again": "Render again",
       "error": "Render failed. Please try again.",
+      "planRequired": "Cloud rendering requires a Pro plan.",
+      "cloudUnavailable": "Cloud rendering is coming soon.",
       "note": "Combines photos, video, captions, and music into an MP4. May take a while depending on length."
     },
     "captions": {

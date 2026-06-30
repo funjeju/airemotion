@@ -6,6 +6,11 @@ import { unlink } from "node:fs/promises";
 import { NextResponse } from "next/server";
 import { adminDb, adminStorage, verifyIdToken } from "@/lib/firebase/admin";
 import { renderProjectVideo } from "@/lib/remotion/render";
+import {
+  canUseProvider,
+  resolveRenderProvider,
+  type UserPlan,
+} from "@/lib/remotion/provider";
 import { clipsToGlideProps } from "@/lib/remotion/to-props";
 import type { Clip } from "@/lib/firebase/clips";
 import type { Caption } from "@/lib/firebase/captions";
@@ -35,6 +40,22 @@ export async function POST(
   if (!projectSnap.exists || projectSnap.data()?.ownerUid !== uid) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
+
+  // 2.5) 렌더 공급자 + 플랜 게이팅
+  const provider = resolveRenderProvider();
+  if (provider === "lambda") {
+    const userSnap = await adminDb().collection("users").doc(uid).get();
+    const plan = (userSnap.data()?.plan ?? "free") as UserPlan;
+    if (!canUseProvider(provider, plan)) {
+      return NextResponse.json({ error: "plan-required" }, { status: 402 });
+    }
+    // AWS Lambda 경로는 아직 미구성 — 준비되면 여기서 renderMediaOnLambda 호출.
+    return NextResponse.json(
+      { error: "cloud-render-unavailable" },
+      { status: 501 },
+    );
+  }
+  // provider === "local": 셀프호스트/로컬 머신에서 렌더(무료). 아래 진행.
 
   // 3) 클립 로드 → 컴포지션 props
   const clipsSnap = await projectRef.collection("clips").get();
