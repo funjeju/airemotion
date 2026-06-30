@@ -72,7 +72,11 @@
       "tone": "톤",
       "tones": {
         "calm": "잔잔함",
-        "lively": "활기참"
+        "lively": "활기참",
+        "cinematic": "시네마틱",
+        "cheerful": "발랄",
+        "dynamic": "역동",
+        "bold": "강렬"
       },
       "apply": "이 분위기로 자동 적용",
       "applying": "적용 중…",

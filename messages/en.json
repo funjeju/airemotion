@@ -72,7 +72,11 @@
       "tone": "Tone",
       "tones": {
         "calm": "Calm",
-        "lively": "Lively"
+        "lively": "Lively",
+        "cinematic": "Cinematic",
+        "cheerful": "Cheerful",
+        "dynamic": "Dynamic",
+        "bold": "Bold"
       },
       "apply": "Apply this mood",
       "applying": "Applying…",

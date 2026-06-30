@@ -1,9 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { Tone } from "@/lib/remotion/tone";
+import { TONE_LIST, type Tone } from "@/lib/remotion/tone";
 
-const TONES: Tone[] = ["calm", "lively"];
+const TONES: Tone[] = TONE_LIST;
 
 /** 영상 분위기(의도 프롬프트) → 톤 선택 → 전체 자동 적용. */
 export function ProjectTone({

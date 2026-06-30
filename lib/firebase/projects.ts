@@ -15,6 +15,7 @@ import type {
   RTransitionType,
   TransitionSpeed,
 } from "@/remotion/types";
+import type { Tone } from "@/lib/remotion/tone";
 
 export type ProjectStatus = "draft" | "rendering" | "done" | "error";
 
@@ -24,7 +25,7 @@ export type Project = {
   title: string;
   intentPrompt: string;
   status: ProjectStatus;
-  effectTheme: "calm" | "lively";
+  effectTheme: Tone;
   transitionType?: RTransitionType;
   transitionDirection?: RTransitionDirection;
   transitionSpeed?: TransitionSpeed;
