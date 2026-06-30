@@ -10,6 +10,7 @@ import {
   deleteClip,
   listClips,
   reorderClips,
+  splitVideoClip,
   updateClip,
   uploadClip,
   type Animation,
@@ -49,6 +50,7 @@ import { ProjectTone } from "@/components/editor/project-tone";
 import { AspectControl } from "@/components/editor/aspect-control";
 import { TransitionControl } from "@/components/editor/transition-control";
 import { CaptionReview } from "@/components/editor/caption-review";
+import { VideoTrimModal } from "@/components/editor/video-trim-modal";
 import { RemotionPreview } from "@/components/editor/remotion-preview";
 
 export default function EditorPage({
@@ -77,6 +79,7 @@ export default function EditorPage({
   const [applyingTone, setApplyingTone] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
   const [mode, setMode] = useState<"simple" | "advanced">("simple");
+  const [trimClipId, setTrimClipId] = useState<string | null>(null);
   const promptTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
@@ -335,6 +338,25 @@ export default function EditorPage({
     );
   }
 
+  const trimClip = clips.find((c) => c.id === trimClipId) ?? null;
+
+  function handleApplyTrim(trimStart: number, trimEnd: number) {
+    if (!trimClip) return;
+    const id = trimClip.id;
+    setClips((cur) =>
+      cur.map((c) => (c.id === id ? { ...c, trimStart, trimEnd } : c)),
+    );
+    updateClip(projectId, id, { trimStart, trimEnd });
+    setTrimClipId(null);
+  }
+
+  async function handleSplit(atSec: number) {
+    if (!trimClip) return;
+    await splitVideoClip(projectId, trimClip, atSec);
+    setTrimClipId(null);
+    setClips(await listClips(projectId)); // 분할 결과(새 클립 포함) 반영
+  }
+
   function handlePromptChange(text: string) {
     setIntentPrompt(text);
     setTone(detectTone(text));
@@ -465,6 +487,7 @@ export default function EditorPage({
                 onOverrides={handleOverrides}
                 onAnimation={handleAnimation}
                 onDuration={handleDuration}
+                onOpenTrim={() => selectedClip && setTrimClipId(selectedClip.id)}
                 onDelete={handleDelete}
               />
 
@@ -539,6 +562,15 @@ export default function EditorPage({
           </section>
         </div>
       )}
+
+      {trimClip && trimClip.type === "video" ? (
+        <VideoTrimModal
+          clip={trimClip}
+          onClose={() => setTrimClipId(null)}
+          onApply={handleApplyTrim}
+          onSplit={handleSplit}
+        />
+      ) : null}
     </div>
   );
 }

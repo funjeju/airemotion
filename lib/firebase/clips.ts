@@ -36,10 +36,21 @@ export type Clip = {
   storagePath: string;
   downloadURL: string;
   fileName: string;
-  durationSec: number;
+  durationSec: number; // 사진=노출시간, 영상=소스 전체 길이
   animation: Animation | null;
   caption: { text: string; overrides: CaptionOverrides | null };
+  // 영상 트림(초). 미설정 시 [0, durationSec] 전체.
+  trimStart?: number;
+  trimEnd?: number;
 };
+
+/** 영상 클립의 실제 타임라인 노출 길이(트림 반영). */
+export function clipPlaybackSec(clip: Clip): number {
+  if (clip.type !== "video") return clip.durationSec;
+  const start = clip.trimStart ?? 0;
+  const end = clip.trimEnd ?? clip.durationSec;
+  return Math.max(0.1, end - start);
+}
 
 export const PHOTO_DEFAULT_SEC = 4;
 
@@ -150,9 +161,56 @@ export async function reorderClips(
 export async function updateClip(
   projectId: string,
   clipId: string,
-  patch: Partial<Pick<Clip, "caption" | "animation" | "durationSec">>,
+  patch: Partial<
+    Pick<Clip, "caption" | "animation" | "durationSec" | "trimStart" | "trimEnd">
+  >,
 ): Promise<void> {
   await updateDoc(doc(getDb(), "projects", projectId, "clips", clipId), patch);
+}
+
+/**
+ * 영상 클립을 atSec(소스 기준 초)에서 둘로 분할.
+ * 원본은 [trimStart, atSec], 새 클립은 [atSec, trimEnd]. 뒤 클립들 순서 +1.
+ */
+export async function splitVideoClip(
+  projectId: string,
+  clip: Clip,
+  atSec: number,
+): Promise<void> {
+  const start = clip.trimStart ?? 0;
+  const end = clip.trimEnd ?? clip.durationSec;
+  const snap = await getDocs(clipsCol(projectId));
+  const batch = writeBatch(getDb());
+
+  // 원본 뒤의 클립들 순서를 한 칸씩 밀기
+  snap.docs.forEach((d) => {
+    const order = (d.data().order as number) ?? 0;
+    if (order > clip.order) batch.update(d.ref, { order: order + 1 });
+  });
+
+  // 원본: 끝을 분할 지점으로
+  batch.update(doc(getDb(), "projects", projectId, "clips", clip.id), {
+    trimEnd: atSec,
+  });
+
+  // 새 클립: 분할 지점부터 끝까지
+  const newRef = doc(clipsCol(projectId));
+  batch.set(newRef, {
+    order: clip.order + 1,
+    type: clip.type,
+    storagePath: clip.storagePath,
+    downloadURL: clip.downloadURL,
+    fileName: clip.fileName,
+    durationSec: clip.durationSec,
+    animation: clip.animation,
+    caption: { text: "", overrides: null },
+    trimStart: atSec,
+    trimEnd: end,
+    createdAt: serverTimestamp(),
+  });
+
+  await batch.commit();
+  void start; // 가독성용(원본 시작은 유지)
 }
 
 /** 톤 자동 적용 등 — 여러 클립의 길이·애니메이션을 한 번에 갱신. */

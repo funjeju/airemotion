@@ -63,6 +63,8 @@ export type RClip = {
   durationInFrames: number;
   animation: RAnimation;
   caption: RCaption;
+  // 영상 트림: 소스에서 잘라낼 시작 지점(초). durationInFrames가 잘린 구간 길이.
+  trimStartSec?: number;
 };
 
 // Whisper 자동 자막(타임 기반, 전역 타임라인 기준)

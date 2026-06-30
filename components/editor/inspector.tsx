@@ -12,6 +12,7 @@ export function Inspector({
   onOverrides,
   onAnimation,
   onDuration,
+  onOpenTrim,
   onDelete,
 }: {
   clip: Clip | null;
@@ -19,6 +20,7 @@ export function Inspector({
   onOverrides: (patch: CaptionOverrides | null) => void;
   onAnimation: (a: Animation) => void;
   onDuration: (sec: number) => void;
+  onOpenTrim: () => void;
   onDelete: () => void;
 }) {
   const t = useTranslations("editor.inspector");
@@ -101,6 +103,19 @@ export function Inspector({
             />
             <span className="font-mono text-xs text-muted">{t("seconds")}</span>
           </div>
+        </div>
+      )}
+
+      {/* 영상 편집(트림/컷) */}
+      {clip.type === "video" && (
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={onOpenTrim}
+            className="inline-flex items-center gap-2 rounded-[var(--radius)] border border-line px-4 py-2 text-sm text-ink transition hover:border-accent"
+          >
+            ✂ {t("editVideo")}
+          </button>
         </div>
       )}
 

@@ -59,6 +59,7 @@ function kenBurnsTransform(clip: RClip, frame: number): string {
 
 function ClipView({ clip }: { clip: RClip }) {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const transform = kenBurnsTransform(clip, frame);
 
   return (
@@ -75,6 +76,11 @@ function ClipView({ clip }: { clip: RClip }) {
           <OffthreadVideo
             src={clip.src}
             muted
+            trimBefore={
+              clip.trimStartSec
+                ? Math.round(clip.trimStartSec * fps)
+                : undefined
+            }
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         )}

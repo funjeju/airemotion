@@ -9,7 +9,7 @@ import {
   type RTransitionType,
   type TransitionSpeed,
 } from "@/remotion/types";
-import type { Clip } from "@/lib/firebase/clips";
+import { clipPlaybackSec, type Clip } from "@/lib/firebase/clips";
 import type { Caption } from "@/lib/firebase/captions";
 
 export type TransitionSettings = {
@@ -37,7 +37,7 @@ export function clipsToGlideProps(
   const rclips: RClip[] = visuals.map((c) => ({
     type: c.type as "image" | "video",
     src: c.downloadURL,
-    durationInFrames: Math.max(1, Math.round(c.durationSec * FPS)),
+    durationInFrames: Math.max(1, Math.round(clipPlaybackSec(c) * FPS)),
     animation: c.animation,
     caption: {
       text: c.caption.text ?? "",
@@ -46,6 +46,7 @@ export function clipsToGlideProps(
       fontSize: c.caption.overrides?.fontSize,
       position: c.caption.overrides?.position,
     },
+    trimStartSec: c.type === "video" ? (c.trimStart ?? 0) : undefined,
   }));
 
   const subtitles: RSubtitle[] = captions.map((c) => ({

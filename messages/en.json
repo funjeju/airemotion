@@ -102,7 +102,19 @@
       "animation": "Effect",
       "duration": "Duration",
       "seconds": "sec",
+      "editVideo": "Edit video (trim & cut)",
       "delete": "Delete clip"
+    },
+    "trim": {
+      "title": "Edit video",
+      "start": "Start",
+      "end": "End",
+      "play": "Play",
+      "pause": "Pause",
+      "split": "Split",
+      "splitHint": "Splits the clip into two at the playhead.",
+      "apply": "Apply",
+      "cancel": "Cancel"
     },
     "aspect": {
       "title": "Aspect ratio",
