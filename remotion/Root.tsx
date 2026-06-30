@@ -3,6 +3,7 @@ import { GlideVideo } from "./GlideVideo";
 import {
   FPS,
   HEIGHT,
+  TRANSITION_FRAMES_BY_SPEED,
   WIDTH,
   totalDurationInFrames,
   type GlideVideoProps,
@@ -11,8 +12,10 @@ import {
 const calculateMetadata: CalculateMetadataFunction<GlideVideoProps> = ({
   props,
 }) => {
+  const transitionFrames =
+    props.transitionType === "none" ? 0 : props.transitionDurationInFrames;
   return {
-    durationInFrames: totalDurationInFrames(props.clips),
+    durationInFrames: totalDurationInFrames(props.clips, transitionFrames),
     fps: FPS,
     width: WIDTH,
     height: HEIGHT,
@@ -29,7 +32,13 @@ export function RemotionRoot() {
       width={WIDTH}
       height={HEIGHT}
       defaultProps={
-        { clips: [], audioSrc: null, subtitles: [] } satisfies GlideVideoProps
+        {
+          clips: [],
+          audioSrc: null,
+          subtitles: [],
+          transitionType: "fade",
+          transitionDurationInFrames: TRANSITION_FRAMES_BY_SPEED.normal,
+        } satisfies GlideVideoProps
       }
       calculateMetadata={calculateMetadata}
     />

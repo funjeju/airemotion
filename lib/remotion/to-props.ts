@@ -1,16 +1,30 @@
 import {
   FPS,
+  TRANSITION_FRAMES_BY_SPEED,
   type GlideVideoProps,
   type RClip,
   type RSubtitle,
+  type RTransitionType,
+  type TransitionSpeed,
 } from "@/remotion/types";
 import type { Clip } from "@/lib/firebase/clips";
 import type { Caption } from "@/lib/firebase/captions";
 
-/** Firebase Clip[] + 자동 자막 → Remotion 컴포지션 props (미리보기·렌더 공용). */
+export type TransitionSettings = {
+  type: RTransitionType;
+  speed: TransitionSpeed;
+};
+
+export const DEFAULT_TRANSITION: TransitionSettings = {
+  type: "fade",
+  speed: "normal",
+};
+
+/** Firebase Clip[] + 자동 자막 + 전환 설정 → Remotion 컴포지션 props (미리보기·렌더 공용). */
 export function clipsToGlideProps(
   clips: Clip[],
   captions: Caption[] = [],
+  transition: TransitionSettings = DEFAULT_TRANSITION,
 ): GlideVideoProps {
   const visuals = clips.filter((c) => c.type === "image" || c.type === "video");
   const audio = clips.find((c) => c.type === "audio");
@@ -35,5 +49,11 @@ export function clipsToGlideProps(
     text: c.text,
   }));
 
-  return { clips: rclips, audioSrc: audio?.downloadURL ?? null, subtitles };
+  return {
+    clips: rclips,
+    audioSrc: audio?.downloadURL ?? null,
+    subtitles,
+    transitionType: transition.type,
+    transitionDurationInFrames: TRANSITION_FRAMES_BY_SPEED[transition.speed],
+  };
 }

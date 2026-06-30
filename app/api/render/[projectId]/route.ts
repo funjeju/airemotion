@@ -45,7 +45,11 @@ export async function POST(
   const captions = captionsSnap.docs
     .map((d) => ({ id: d.id, ...d.data() }) as Caption)
     .sort((a, b) => a.start - b.start);
-  const props = clipsToGlideProps(clips, captions);
+  const pdata = projectSnap.data() ?? {};
+  const props = clipsToGlideProps(clips, captions, {
+    type: pdata.transitionType ?? "fade",
+    speed: pdata.transitionSpeed ?? "normal",
+  });
   if (props.clips.length === 0) {
     return NextResponse.json({ error: "no-clips" }, { status: 400 });
   }

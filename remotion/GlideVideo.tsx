@@ -10,12 +10,13 @@ import {
 } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
 import {
   HEIGHT,
-  TRANSITION_FRAMES,
   type GlideVideoProps,
   type RClip,
   type RSubtitle,
+  type RTransitionType,
 } from "./types";
 
 /** 켄 번스 변환 — CSS 애니메이션 금지, useCurrentFrame+interpolate로 매 프레임 계산. */
@@ -142,7 +143,20 @@ function SubtitleTrack({ subtitles }: { subtitles: RSubtitle[] }) {
   );
 }
 
-export function GlideVideo({ clips, audioSrc, subtitles }: GlideVideoProps) {
+function presentationFor(type: RTransitionType) {
+  return type === "slide" ? slide() : fade();
+}
+
+export function GlideVideo({
+  clips,
+  audioSrc,
+  subtitles,
+  transitionType,
+  transitionDurationInFrames,
+}: GlideVideoProps) {
+  // '컷'(none) 또는 전환 길이 0이면 전환 없이 순차 재생.
+  const useTransition = transitionType !== "none" && transitionDurationInFrames > 0;
+
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
       <TransitionSeries>
@@ -155,12 +169,14 @@ export function GlideVideo({ clips, audioSrc, subtitles }: GlideVideoProps) {
               <ClipView clip={clip} />
             </TransitionSeries.Sequence>
           );
-          if (i === clips.length - 1) return [seq];
+          if (!useTransition || i === clips.length - 1) return [seq];
           const trans = (
             <TransitionSeries.Transition
               key={`t-${i}`}
-              presentation={fade()}
-              timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
+              presentation={presentationFor(transitionType)}
+              timing={linearTiming({
+                durationInFrames: transitionDurationInFrames,
+              })}
             />
           );
           return [seq, trans];

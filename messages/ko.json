@@ -94,6 +94,22 @@
       "zoomOut": "줌아웃",
       "pan": "팬"
     },
+    "transition": {
+      "title": "화면 전환",
+      "note": "클립이 바뀔 때의 전환 효과를 영상 전체에 일관되게 적용합니다.",
+      "type": "전환",
+      "speed": "속도",
+      "types": {
+        "fade": "크로스페이드",
+        "slide": "슬라이드",
+        "none": "컷"
+      },
+      "speeds": {
+        "slow": "느리게",
+        "normal": "보통",
+        "fast": "빠르게"
+      }
+    },
     "render": {
       "make": "영상 만들기",
       "rendering": "렌더링 중…",

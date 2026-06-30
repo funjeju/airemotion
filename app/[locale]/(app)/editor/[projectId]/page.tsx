@@ -21,9 +21,19 @@ import {
   updateCaption,
   type Caption,
 } from "@/lib/firebase/captions";
+import {
+  getProject,
+  updateProjectSettings,
+} from "@/lib/firebase/projects";
+import {
+  DEFAULT_TRANSITION,
+  type TransitionSettings,
+} from "@/lib/remotion/to-props";
+import type { RTransitionType, TransitionSpeed } from "@/remotion/types";
 import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
 import { Inspector } from "@/components/editor/inspector";
+import { TransitionControl } from "@/components/editor/transition-control";
 import { CaptionReview } from "@/components/editor/caption-review";
 import { RemotionPreview } from "@/components/editor/remotion-preview";
 
@@ -46,6 +56,8 @@ export default function EditorPage({
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [transcribing, setTranscribing] = useState(false);
   const [captionError, setCaptionError] = useState<string | null>(null);
+  const [transition, setTransition] =
+    useState<TransitionSettings>(DEFAULT_TRANSITION);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
@@ -57,13 +69,20 @@ export default function EditorPage({
     let alive = true;
     (async () => {
       setLoading(true);
-      const [items, caps] = await Promise.all([
+      const [items, caps, project] = await Promise.all([
         listClips(projectId),
         listCaptions(projectId),
+        getProject(projectId),
       ]);
       if (!alive) return;
       setClips(items);
       setCaptions(caps);
+      if (project) {
+        setTransition({
+          type: project.transitionType ?? DEFAULT_TRANSITION.type,
+          speed: project.transitionSpeed ?? DEFAULT_TRANSITION.speed,
+        });
+      }
       setLoading(false);
     })();
     return () => {
@@ -231,6 +250,17 @@ export default function EditorPage({
     deleteCaption(projectId, id);
   }
 
+  function handleTransitionChange(patch: {
+    transitionType?: RTransitionType;
+    transitionSpeed?: TransitionSpeed;
+  }) {
+    setTransition((cur) => ({
+      type: patch.transitionType ?? cur.type,
+      speed: patch.transitionSpeed ?? cur.speed,
+    }));
+    updateProjectSettings(projectId, patch);
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <Link
@@ -248,7 +278,11 @@ export default function EditorPage({
         </div>
       ) : (
         <div className="mt-6 space-y-6">
-          <RemotionPreview clips={clips} captions={captions} />
+          <RemotionPreview
+            clips={clips}
+            captions={captions}
+            transition={transition}
+          />
 
           <section className="space-y-3">
             <Filmstrip
@@ -270,6 +304,13 @@ export default function EditorPage({
             onOverrides={handleOverrides}
             onAnimation={handleAnimation}
             onDelete={handleDelete}
+          />
+
+          {/* 화면 전환 (전체 일관 적용) */}
+          <TransitionControl
+            type={transition.type}
+            speed={transition.speed}
+            onChange={handleTransitionChange}
           />
 
           {/* 자동 자막 (Whisper) + 검수 */}

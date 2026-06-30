@@ -5,7 +5,10 @@ import { Player } from "@remotion/player";
 import { useTranslations } from "next-intl";
 import { GlideVideo } from "@/remotion/GlideVideo";
 import { FPS, HEIGHT, WIDTH, totalDurationInFrames } from "@/remotion/types";
-import { clipsToGlideProps } from "@/lib/remotion/to-props";
+import {
+  clipsToGlideProps,
+  type TransitionSettings,
+} from "@/lib/remotion/to-props";
 import type { Clip } from "@/lib/firebase/clips";
 import type { Caption } from "@/lib/firebase/captions";
 
@@ -13,18 +16,24 @@ import type { Caption } from "@/lib/firebase/captions";
 export function RemotionPreview({
   clips,
   captions,
+  transition,
 }: {
   clips: Clip[];
   captions: Caption[];
+  transition: TransitionSettings;
 }) {
   const t = useTranslations("editor.preview");
   const props = useMemo(
-    () => clipsToGlideProps(clips, captions),
-    [clips, captions],
+    () => clipsToGlideProps(clips, captions, transition),
+    [clips, captions, transition],
   );
   const duration = useMemo(
-    () => totalDurationInFrames(props.clips),
-    [props.clips],
+    () =>
+      totalDurationInFrames(
+        props.clips,
+        props.transitionType === "none" ? 0 : props.transitionDurationInFrames,
+      ),
+    [props.clips, props.transitionType, props.transitionDurationInFrames],
   );
 
   if (props.clips.length === 0) {

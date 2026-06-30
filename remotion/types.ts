@@ -30,16 +30,31 @@ export type RSubtitle = {
   text: string;
 };
 
+// 화면 전환 (전체 영상에 일관 적용)
+export type RTransitionType = "fade" | "slide" | "none";
+export type TransitionSpeed = "slow" | "normal" | "fast";
+
+export const TRANSITION_FRAMES_BY_SPEED: Record<TransitionSpeed, number> = {
+  slow: 24,
+  normal: 15,
+  fast: 8,
+};
+
 export type GlideVideoProps = {
   clips: RClip[];
   audioSrc: string | null;
   subtitles: RSubtitle[];
+  transitionType: RTransitionType;
+  transitionDurationInFrames: number;
 };
 
-/** 크로스페이드는 인접 클립을 겹치므로 총 길이에서 전환 프레임을 뺀다. */
-export function totalDurationInFrames(clips: RClip[]): number {
+/** 전환은 인접 클립을 겹치므로 총 길이에서 전환 프레임을 뺀다(컷은 겹침 없음). */
+export function totalDurationInFrames(
+  clips: RClip[],
+  transitionFrames: number,
+): number {
   if (clips.length === 0) return 1;
   const sum = clips.reduce((a, c) => a + c.durationInFrames, 0);
-  const overlap = Math.max(0, clips.length - 1) * TRANSITION_FRAMES;
+  const overlap = Math.max(0, clips.length - 1) * transitionFrames;
   return Math.max(1, sum - overlap);
 }

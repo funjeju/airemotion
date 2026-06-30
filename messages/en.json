@@ -94,6 +94,22 @@
       "zoomOut": "Zoom out",
       "pan": "Pan"
     },
+    "transition": {
+      "title": "Transitions",
+      "note": "Applies the clip-to-clip transition consistently across the whole video.",
+      "type": "Transition",
+      "speed": "Speed",
+      "types": {
+        "fade": "Crossfade",
+        "slide": "Slide",
+        "none": "Cut"
+      },
+      "speeds": {
+        "slow": "Slow",
+        "normal": "Normal",
+        "fast": "Fast"
+      }
+    },
     "render": {
       "make": "Make video",
       "rendering": "Rendering…",
