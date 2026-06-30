@@ -93,6 +93,14 @@
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
       "pan": "Pan"
+    },
+    "render": {
+      "make": "Make video",
+      "rendering": "Rendering…",
+      "download": "Download video",
+      "again": "Render again",
+      "error": "Render failed. Please try again.",
+      "note": "Combines photos, video, captions, and music into an MP4. May take a while depending on length."
     }
   },
   "common": {

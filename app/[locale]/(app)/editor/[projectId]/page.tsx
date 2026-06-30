@@ -4,6 +4,7 @@ import { use, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/auth-context";
+import { getClientAuth } from "@/lib/firebase/client";
 import {
   deleteClip,
   listClips,
@@ -17,7 +18,7 @@ import {
 import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
 import { Inspector } from "@/components/editor/inspector";
-import { PreviewCanvas } from "@/components/editor/preview-canvas";
+import { RemotionPreview } from "@/components/editor/remotion-preview";
 
 export default function EditorPage({
   params,
@@ -32,6 +33,9 @@ export default function EditorPage({
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [uploadingPct, setUploadingPct] = useState<number | null>(null);
+  const [rendering, setRendering] = useState(false);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+  const [renderError, setRenderError] = useState<string | null>(null);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
@@ -136,6 +140,30 @@ export default function EditorPage({
     await deleteClip(projectId, target);
   }
 
+  const hasVisual = clips.some((c) => c.type !== "audio");
+
+  async function handleRender() {
+    const current = getClientAuth().currentUser;
+    if (!current) return;
+    setRendering(true);
+    setRenderError(null);
+    setOutputUrl(null);
+    try {
+      const token = await current.getIdToken();
+      const res = await fetch(`/api/render/${projectId}`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("render failed");
+      const data = (await res.json()) as { url: string };
+      setOutputUrl(data.url);
+    } catch {
+      setRenderError(t("render.error"));
+    } finally {
+      setRendering(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <Link
@@ -153,7 +181,7 @@ export default function EditorPage({
         </div>
       ) : (
         <div className="mt-6 space-y-6">
-          <PreviewCanvas clips={clips} />
+          <RemotionPreview clips={clips} />
 
           <section className="space-y-3">
             <Filmstrip
@@ -176,6 +204,52 @@ export default function EditorPage({
             onAnimation={handleAnimation}
             onDelete={handleDelete}
           />
+
+          {/* 영상 만들기 (실제 MP4 렌더) */}
+          <section className="rounded-2xl border border-line bg-surface p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-muted">{t("render.note")}</p>
+              <div className="flex items-center gap-3">
+                {outputUrl ? (
+                  <a
+                    href={outputUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-[var(--radius)] border border-accent px-4 py-2 text-sm font-medium text-accent transition hover:bg-accent-weak"
+                  >
+                    ↓ {t("render.download")}
+                  </a>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={handleRender}
+                  disabled={rendering || !hasVisual}
+                  className="inline-flex items-center justify-center gap-2 rounded-[var(--radius)] bg-accent px-5 py-2.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                >
+                  {rendering ? (
+                    <>
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/50 border-t-white" />
+                      {t("render.rendering")}
+                    </>
+                  ) : outputUrl ? (
+                    t("render.again")
+                  ) : (
+                    t("render.make")
+                  )}
+                </button>
+              </div>
+            </div>
+            {rendering ? (
+              <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-line">
+                <div className="h-full w-1/3 animate-pulse rounded-full bg-render" />
+              </div>
+            ) : null}
+            {renderError ? (
+              <p className="mt-3 text-sm text-render" role="alert">
+                {renderError}
+              </p>
+            ) : null}
+          </section>
         </div>
       )}
     </div>

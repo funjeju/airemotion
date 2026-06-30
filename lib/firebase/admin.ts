@@ -2,6 +2,7 @@ import "server-only";
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 // 서버 전용 Admin SDK. 시크릿은 NEXT_PUBLIC_ 없이 환경변수에서만 읽는다.
 function getAdminApp(): App {
@@ -26,6 +27,7 @@ function getAdminApp(): App {
 
 export const adminAuth = () => getAuth(getAdminApp());
 export const adminDb = () => getFirestore(getAdminApp());
+export const adminStorage = () => getStorage(getAdminApp());
 
 /** 클라이언트가 보낸 Firebase ID 토큰을 검증하고 uid 등을 반환. 실패 시 null. */
 export async function verifyIdToken(idToken: string) {

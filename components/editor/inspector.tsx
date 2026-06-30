@@ -115,9 +115,10 @@ export function Inspector({
             {t("fontSize")}
             <input
               type="number"
-              min={12}
-              max={96}
-              value={ov.fontSize ?? 28}
+              min={24}
+              max={160}
+              step={2}
+              value={ov.fontSize ?? 48}
               onChange={(e) => setOv({ fontSize: Number(e.target.value) })}
               className="mt-1 block w-full rounded-md border border-line bg-bg px-2 py-1 text-sm text-ink"
             />

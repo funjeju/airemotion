@@ -1,0 +1,37 @@
+// Remotion 번들 전용 타입 — Firebase 등 앱 의존성 없이 직렬화 가능한 형태만.
+
+export const FPS = 30;
+export const WIDTH = 1920;
+export const HEIGHT = 1080;
+export const TRANSITION_FRAMES = 15; // 0.5s 크로스페이드
+
+export type RAnimation = "zoomIn" | "zoomOut" | "pan" | null;
+
+export type RCaption = {
+  text: string;
+  color?: string;
+  bgColor?: string;
+  fontSize?: number; // 1080 높이 기준 px
+  position?: "top" | "center" | "bottom";
+};
+
+export type RClip = {
+  type: "image" | "video";
+  src: string;
+  durationInFrames: number;
+  animation: RAnimation;
+  caption: RCaption;
+};
+
+export type GlideVideoProps = {
+  clips: RClip[];
+  audioSrc: string | null;
+};
+
+/** 크로스페이드는 인접 클립을 겹치므로 총 길이에서 전환 프레임을 뺀다. */
+export function totalDurationInFrames(clips: RClip[]): number {
+  if (clips.length === 0) return 1;
+  const sum = clips.reduce((a, c) => a + c.durationInFrames, 0);
+  const overlap = Math.max(0, clips.length - 1) * TRANSITION_FRAMES;
+  return Math.max(1, sum - overlap);
+}
