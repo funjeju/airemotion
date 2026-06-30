@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { getDb } from "./client";
 import type {
+  AspectRatio,
   RTransitionDirection,
   RTransitionType,
   TransitionSpeed,
@@ -29,6 +30,7 @@ export type Project = {
   transitionType?: RTransitionType;
   transitionDirection?: RTransitionDirection;
   transitionSpeed?: TransitionSpeed;
+  aspectRatio?: AspectRatio;
   createdAt: { seconds: number } | null;
   updatedAt: { seconds: number } | null;
 };
@@ -59,6 +61,7 @@ export async function createProject(
     transitionType: "fade",
     transitionDirection: "from-left",
     transitionSpeed: "normal",
+    aspectRatio: "16:9",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -80,6 +83,7 @@ export async function updateProjectSettings(
       | "transitionType"
       | "transitionDirection"
       | "transitionSpeed"
+      | "aspectRatio"
       | "intentPrompt"
       | "effectTheme"
     >

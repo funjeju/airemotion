@@ -20,8 +20,6 @@ import { flip } from "@remotion/transitions/flip";
 import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { none } from "@remotion/transitions/none";
 import {
-  HEIGHT,
-  WIDTH,
   type GlideVideoProps,
   type RClip,
   type RSubtitle,
@@ -69,6 +67,8 @@ function ClipView({ clip }: { clip: RClip }) {
         {clip.type === "image" ? (
           <Img
             src={clip.src}
+            // 브라우저가 못 푸는 이미지(예: HEIC)여도 렌더가 깨지지 않게.
+            onError={() => {}}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         ) : (
@@ -85,11 +85,12 @@ function ClipView({ clip }: { clip: RClip }) {
 }
 
 function CaptionView({ caption }: { caption: RClip["caption"] }) {
+  const { height } = useVideoConfig();
   const pos = caption.position ?? "bottom";
   const justify =
     pos === "top" ? "flex-start" : pos === "center" ? "center" : "flex-end";
-  // fontSize는 1080 기준 px. 미리보기/렌더 모두 동일 비율로 스케일됨.
-  const fontSize = caption.fontSize ?? Math.round(HEIGHT * 0.045);
+  // fontSize는 화면 높이 기준 px. 미리보기/렌더 모두 동일 비율로 스케일됨.
+  const fontSize = caption.fontSize ?? Math.round(height * 0.045);
   return (
     <AbsoluteFill
       style={{
@@ -97,7 +98,7 @@ function CaptionView({ caption }: { caption: RClip["caption"] }) {
         flexDirection: "column",
         justifyContent: justify,
         alignItems: "center",
-        padding: HEIGHT * 0.06,
+        padding: height * 0.06,
       }}
     >
       <span
@@ -122,7 +123,7 @@ function CaptionView({ caption }: { caption: RClip["caption"] }) {
 
 /** Whisper 자동 자막 — 전역 타임라인 기준 시간에 하단 자막 표시. */
 function SubtitleTrack({ subtitles }: { subtitles: RSubtitle[] }) {
-  const { fps } = useVideoConfig();
+  const { fps, height } = useVideoConfig();
   return (
     <AbsoluteFill>
       {subtitles.map((s, i) => {
@@ -137,7 +138,7 @@ function SubtitleTrack({ subtitles }: { subtitles: RSubtitle[] }) {
                 flexDirection: "column",
                 justifyContent: "flex-end",
                 alignItems: "center",
-                padding: HEIGHT * 0.05,
+                padding: height * 0.05,
               }}
             >
               <span
@@ -146,7 +147,7 @@ function SubtitleTrack({ subtitles }: { subtitles: RSubtitle[] }) {
                   textAlign: "center",
                   color: "#ffffff",
                   backgroundColor: "rgba(0,0,0,0.6)",
-                  fontSize: Math.round(HEIGHT * 0.042),
+                  fontSize: Math.round(height * 0.042),
                   lineHeight: 1.3,
                   fontWeight: 600,
                   padding: "0.2em 0.6em",
@@ -167,6 +168,8 @@ function SubtitleTrack({ subtitles }: { subtitles: RSubtitle[] }) {
 function presentationFor(
   type: RTransitionType,
   direction: RTransitionDirection,
+  width: number,
+  height: number,
 ): TransitionPresentation<Record<string, unknown>> {
   const p =
     type === "slide"
@@ -176,7 +179,7 @@ function presentationFor(
         : type === "flip"
           ? flip({ direction })
           : type === "clockWipe"
-            ? clockWipe({ width: WIDTH, height: HEIGHT })
+            ? clockWipe({ width, height })
             : type === "none"
               ? none()
               : fade();
@@ -219,6 +222,7 @@ export function GlideVideo({
   transitionDirection,
   transitionDurationInFrames,
 }: GlideVideoProps) {
+  const { width, height } = useVideoConfig();
   // '컷'(none) 또는 전환 길이 0이면 전환 없이 순차 재생.
   const useTransition = transitionType !== "none" && transitionDurationInFrames > 0;
 
@@ -238,7 +242,12 @@ export function GlideVideo({
           const trans = (
             <TransitionSeries.Transition
               key={`t-${i}`}
-              presentation={presentationFor(transitionType, transitionDirection)}
+              presentation={presentationFor(
+                transitionType,
+                transitionDirection,
+                width,
+                height,
+              )}
               timing={linearTiming({
                 durationInFrames: transitionDurationInFrames,
               })}

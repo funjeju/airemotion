@@ -10,12 +10,14 @@ export function Inspector({
   onCaptionText,
   onOverrides,
   onAnimation,
+  onDuration,
   onDelete,
 }: {
   clip: Clip | null;
   onCaptionText: (text: string) => void;
   onOverrides: (patch: CaptionOverrides | null) => void;
   onAnimation: (a: Animation) => void;
+  onDuration: (sec: number) => void;
   onDelete: () => void;
 }) {
   const t = useTranslations("editor.inspector");
@@ -73,6 +75,27 @@ export function Inspector({
                 {ta(a)}
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* 사진 노출 시간 */}
+      {clip.type === "image" && (
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-ink">
+            {t("duration")}
+          </label>
+          <div className="mt-1.5 flex items-center gap-2">
+            <input
+              type="number"
+              min={0.5}
+              max={30}
+              step={0.5}
+              value={Number(clip.durationSec.toFixed(1))}
+              onChange={(e) => onDuration(Number(e.target.value))}
+              className="w-24 rounded-[var(--radius)] border border-line bg-bg px-3 py-2 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            />
+            <span className="font-mono text-xs text-muted">{t("seconds")}</span>
           </div>
         </div>
       )}

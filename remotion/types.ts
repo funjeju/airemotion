@@ -4,6 +4,17 @@ export const FPS = 30;
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
 
+// 화면비율 — 가로(16:9) / 세로(9:16, 쇼츠·릴스)
+export type AspectRatio = "16:9" | "9:16";
+
+export const DIMENSIONS: Record<
+  AspectRatio,
+  { width: number; height: number }
+> = {
+  "16:9": { width: 1920, height: 1080 },
+  "9:16": { width: 1080, height: 1920 },
+};
+
 // ── 사진 애니메이션(켄 번스) ──
 // 자동 배정은 안전한 소수만(ANIMATION_AUTO_POOL), 수동 선택은 전체 팔레트.
 export type AnimationKind =
@@ -107,6 +118,7 @@ export type GlideVideoProps = {
   transitionType: RTransitionType;
   transitionDirection: RTransitionDirection;
   transitionDurationInFrames: number;
+  aspectRatio: AspectRatio;
 };
 
 /** 전환은 인접 클립을 겹치므로 총 길이에서 전환 프레임을 뺀다(컷은 겹침 없음). */

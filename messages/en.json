@@ -97,7 +97,13 @@
       "bottom": "Bottom",
       "animation": "Effect",
       "duration": "Duration",
+      "seconds": "sec",
       "delete": "Delete clip"
+    },
+    "aspect": {
+      "title": "Aspect ratio",
+      "landscape": "Landscape",
+      "portrait": "Portrait"
     },
     "preview": {
       "play": "Play",

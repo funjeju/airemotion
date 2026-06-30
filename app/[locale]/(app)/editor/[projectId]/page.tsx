@@ -37,6 +37,7 @@ import {
   type Tone,
 } from "@/lib/remotion/tone";
 import type {
+  AspectRatio,
   RTransitionDirection,
   RTransitionType,
   TransitionSpeed,
@@ -45,6 +46,7 @@ import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
 import { Inspector } from "@/components/editor/inspector";
 import { ProjectTone } from "@/components/editor/project-tone";
+import { AspectControl } from "@/components/editor/aspect-control";
 import { TransitionControl } from "@/components/editor/transition-control";
 import { CaptionReview } from "@/components/editor/caption-review";
 import { RemotionPreview } from "@/components/editor/remotion-preview";
@@ -73,6 +75,7 @@ export default function EditorPage({
   const [intentPrompt, setIntentPrompt] = useState("");
   const [tone, setTone] = useState<Tone>("calm");
   const [applyingTone, setApplyingTone] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
   const promptTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
@@ -102,6 +105,7 @@ export default function EditorPage({
         });
         setIntentPrompt(project.intentPrompt ?? "");
         setTone(project.effectTheme ?? "calm");
+        setAspectRatio(project.aspectRatio ?? "16:9");
       }
       setLoading(false);
     })();
@@ -283,6 +287,31 @@ export default function EditorPage({
     updateProjectSettings(projectId, patch);
   }
 
+  function handleAspectChange(next: AspectRatio) {
+    setAspectRatio(next);
+    updateProjectSettings(projectId, { aspectRatio: next });
+  }
+
+  function handleDuration(sec: number) {
+    if (!selectedClip) return;
+    const durationSec = Math.min(30, Math.max(0.5, sec || 0.5));
+    setClips((cur) =>
+      cur.map((c) =>
+        c.id === selectedClip.id ? { ...c, durationSec } : c,
+      ),
+    );
+    const id = selectedClip.id;
+    const timers = saveTimers.current;
+    if (timers.has(`dur-${id}`)) clearTimeout(timers.get(`dur-${id}`));
+    timers.set(
+      `dur-${id}`,
+      setTimeout(() => {
+        updateClip(projectId, id, { durationSec });
+        timers.delete(`dur-${id}`);
+      }, 400),
+    );
+  }
+
   function handlePromptChange(text: string) {
     setIntentPrompt(text);
     setTone(detectTone(text));
@@ -356,6 +385,7 @@ export default function EditorPage({
             clips={clips}
             captions={captions}
             transition={transition}
+            aspectRatio={aspectRatio}
           />
 
           {/* 영상 분위기(의도 프롬프트) → 톤 자동 적용 */}
@@ -387,8 +417,12 @@ export default function EditorPage({
             onCaptionText={handleCaptionText}
             onOverrides={handleOverrides}
             onAnimation={handleAnimation}
+            onDuration={handleDuration}
             onDelete={handleDelete}
           />
+
+          {/* 화면비율 */}
+          <AspectControl value={aspectRatio} onChange={handleAspectChange} />
 
           {/* 화면 전환 (전체 일관 적용) */}
           <TransitionControl

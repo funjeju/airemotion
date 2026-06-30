@@ -46,11 +46,16 @@ export async function POST(
     .map((d) => ({ id: d.id, ...d.data() }) as Caption)
     .sort((a, b) => a.start - b.start);
   const pdata = projectSnap.data() ?? {};
-  const props = clipsToGlideProps(clips, captions, {
-    type: pdata.transitionType ?? "fade",
-    direction: pdata.transitionDirection ?? "from-left",
-    speed: pdata.transitionSpeed ?? "normal",
-  });
+  const props = clipsToGlideProps(
+    clips,
+    captions,
+    {
+      type: pdata.transitionType ?? "fade",
+      direction: pdata.transitionDirection ?? "from-left",
+      speed: pdata.transitionSpeed ?? "normal",
+    },
+    pdata.aspectRatio ?? "16:9",
+  );
   if (props.clips.length === 0) {
     return NextResponse.json({ error: "no-clips" }, { status: 400 });
   }

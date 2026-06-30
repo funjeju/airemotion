@@ -96,8 +96,14 @@
       "center": "가운데",
       "bottom": "아래",
       "animation": "효과",
-      "duration": "길이",
+      "duration": "노출 시간",
+      "seconds": "초",
       "delete": "클립 삭제"
+    },
+    "aspect": {
+      "title": "화면비율",
+      "landscape": "가로",
+      "portrait": "세로"
     },
     "preview": {
       "play": "재생",

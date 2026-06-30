@@ -1,6 +1,7 @@
 import {
   FPS,
   TRANSITION_FRAMES_BY_SPEED,
+  type AspectRatio,
   type GlideVideoProps,
   type RClip,
   type RSubtitle,
@@ -28,6 +29,7 @@ export function clipsToGlideProps(
   clips: Clip[],
   captions: Caption[] = [],
   transition: TransitionSettings = DEFAULT_TRANSITION,
+  aspectRatio: AspectRatio = "16:9",
 ): GlideVideoProps {
   const visuals = clips.filter((c) => c.type === "image" || c.type === "video");
   const audio = clips.find((c) => c.type === "audio");
@@ -59,5 +61,6 @@ export function clipsToGlideProps(
     transitionType: transition.type,
     transitionDirection: transition.direction,
     transitionDurationInFrames: TRANSITION_FRAMES_BY_SPEED[transition.speed],
+    aspectRatio,
   };
 }

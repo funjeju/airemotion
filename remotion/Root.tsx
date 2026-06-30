@@ -1,6 +1,7 @@
 import { Composition, type CalculateMetadataFunction } from "remotion";
 import { GlideVideo } from "./GlideVideo";
 import {
+  DIMENSIONS,
   FPS,
   HEIGHT,
   TRANSITION_FRAMES_BY_SPEED,
@@ -14,11 +15,12 @@ const calculateMetadata: CalculateMetadataFunction<GlideVideoProps> = ({
 }) => {
   const transitionFrames =
     props.transitionType === "none" ? 0 : props.transitionDurationInFrames;
+  const { width, height } = DIMENSIONS[props.aspectRatio] ?? DIMENSIONS["16:9"];
   return {
     durationInFrames: totalDurationInFrames(props.clips, transitionFrames),
     fps: FPS,
-    width: WIDTH,
-    height: HEIGHT,
+    width,
+    height,
   };
 };
 
@@ -39,6 +41,7 @@ export function RemotionRoot() {
           transitionType: "fade",
           transitionDirection: "from-left",
           transitionDurationInFrames: TRANSITION_FRAMES_BY_SPEED.normal,
+          aspectRatio: "16:9",
         } satisfies GlideVideoProps
       }
       calculateMetadata={calculateMetadata}
