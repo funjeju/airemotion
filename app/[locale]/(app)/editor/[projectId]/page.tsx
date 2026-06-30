@@ -29,7 +29,11 @@ import {
   DEFAULT_TRANSITION,
   type TransitionSettings,
 } from "@/lib/remotion/to-props";
-import type { RTransitionType, TransitionSpeed } from "@/remotion/types";
+import type {
+  RTransitionDirection,
+  RTransitionType,
+  TransitionSpeed,
+} from "@/remotion/types";
 import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
 import { Inspector } from "@/components/editor/inspector";
@@ -80,6 +84,8 @@ export default function EditorPage({
       if (project) {
         setTransition({
           type: project.transitionType ?? DEFAULT_TRANSITION.type,
+          direction:
+            project.transitionDirection ?? DEFAULT_TRANSITION.direction,
           speed: project.transitionSpeed ?? DEFAULT_TRANSITION.speed,
         });
       }
@@ -252,10 +258,12 @@ export default function EditorPage({
 
   function handleTransitionChange(patch: {
     transitionType?: RTransitionType;
+    transitionDirection?: RTransitionDirection;
     transitionSpeed?: TransitionSpeed;
   }) {
     setTransition((cur) => ({
       type: patch.transitionType ?? cur.type,
+      direction: patch.transitionDirection ?? cur.direction,
       speed: patch.transitionSpeed ?? cur.speed,
     }));
     updateProjectSettings(projectId, patch);
@@ -309,6 +317,7 @@ export default function EditorPage({
           {/* 화면 전환 (전체 일관 적용) */}
           <TransitionControl
             type={transition.type}
+            direction={transition.direction}
             speed={transition.speed}
             onChange={handleTransitionChange}
           />

@@ -37,6 +37,7 @@ export function RemotionRoot() {
           audioSrc: null,
           subtitles: [],
           transitionType: "fade",
+          transitionDirection: "from-left",
           transitionDurationInFrames: TRANSITION_FRAMES_BY_SPEED.normal,
         } satisfies GlideVideoProps
       }

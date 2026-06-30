@@ -10,7 +10,11 @@ import {
   where,
 } from "firebase/firestore";
 import { getDb } from "./client";
-import type { RTransitionType, TransitionSpeed } from "@/remotion/types";
+import type {
+  RTransitionDirection,
+  RTransitionType,
+  TransitionSpeed,
+} from "@/remotion/types";
 
 export type ProjectStatus = "draft" | "rendering" | "done" | "error";
 
@@ -22,6 +26,7 @@ export type Project = {
   status: ProjectStatus;
   effectTheme: "calm" | "lively";
   transitionType?: RTransitionType;
+  transitionDirection?: RTransitionDirection;
   transitionSpeed?: TransitionSpeed;
   createdAt: { seconds: number } | null;
   updatedAt: { seconds: number } | null;
@@ -51,6 +56,7 @@ export async function createProject(
     status: "draft",
     effectTheme: "calm",
     transitionType: "fade",
+    transitionDirection: "from-left",
     transitionSpeed: "normal",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -67,7 +73,12 @@ export async function getProject(projectId: string): Promise<Project | null> {
 /** 프로젝트 설정(전환 타입·속도 등) 갱신. */
 export async function updateProjectSettings(
   projectId: string,
-  patch: Partial<Pick<Project, "transitionType" | "transitionSpeed">>,
+  patch: Partial<
+    Pick<
+      Project,
+      "transitionType" | "transitionDirection" | "transitionSpeed"
+    >
+  >,
 ): Promise<void> {
   await updateDoc(doc(getDb(), "projects", projectId), {
     ...patch,

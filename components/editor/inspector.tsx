@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type {
-  Animation,
-  CaptionOverrides,
-  Clip,
-} from "@/lib/firebase/clips";
-import { ANIMATION_POOL } from "@/lib/firebase/clips";
+import type { Animation, CaptionOverrides, Clip } from "@/lib/firebase/clips";
+import { ANIMATION_PALETTE } from "@/remotion/types";
 
 export function Inspector({
   clip,
@@ -62,14 +58,14 @@ export function Inspector({
           <span className="block text-sm font-medium text-ink">
             {t("animation")}
           </span>
-          <div className="mt-1.5 flex gap-2">
-            {ANIMATION_POOL.map((a) => (
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            {ANIMATION_PALETTE.map((a) => (
               <button
                 key={a}
                 type="button"
                 onClick={() => onAnimation(a)}
                 className={`rounded-[var(--radius)] border px-3 py-1.5 text-sm transition ${
-                  clip.animation === a
+                  (clip.animation ?? "static") === a
                     ? "border-accent bg-accent-weak text-accent"
                     : "border-line text-ink hover:border-accent"
                 }`}

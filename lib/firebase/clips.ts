@@ -17,9 +17,10 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { getClientStorage, getDb } from "./client";
+import { ANIMATION_AUTO_POOL, type AnimationKind } from "@/remotion/types";
 
 export type ClipType = "image" | "video" | "audio";
-export type Animation = "zoomIn" | "zoomOut" | "pan";
+export type Animation = AnimationKind;
 
 export type CaptionOverrides = {
   color?: string;
@@ -40,15 +41,17 @@ export type Clip = {
   caption: { text: string; overrides: CaptionOverrides | null };
 };
 
-// 사진 애니메이션 풀(무난한 효과만). 순수 랜덤 금지 — 직전과 다른 것을 순환 배정.
-export const ANIMATION_POOL: Animation[] = ["zoomIn", "zoomOut", "pan"];
 export const PHOTO_DEFAULT_SEC = 4;
 
-/** 직전 애니메이션과 겹치지 않게 풀에서 순환 배정. */
+/**
+ * AI 자동 배정 — 안전한 효과 풀에서 직전과 겹치지 않게 순환.
+ * (유저 수동 선택은 전체 ANIMATION_PALETTE를 인스펙터에서 제공.)
+ */
 export function pickAnimation(prev: Animation | null): Animation {
-  if (!prev) return ANIMATION_POOL[0];
-  const i = ANIMATION_POOL.indexOf(prev);
-  return ANIMATION_POOL[(i + 1) % ANIMATION_POOL.length];
+  if (!prev) return ANIMATION_AUTO_POOL[0];
+  const i = ANIMATION_AUTO_POOL.indexOf(prev);
+  if (i === -1) return ANIMATION_AUTO_POOL[0];
+  return ANIMATION_AUTO_POOL[(i + 1) % ANIMATION_AUTO_POOL.length];
 }
 
 export function clipTypeOf(file: File): ClipType {

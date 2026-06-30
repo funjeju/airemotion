@@ -4,6 +4,7 @@ import {
   type GlideVideoProps,
   type RClip,
   type RSubtitle,
+  type RTransitionDirection,
   type RTransitionType,
   type TransitionSpeed,
 } from "@/remotion/types";
@@ -12,11 +13,13 @@ import type { Caption } from "@/lib/firebase/captions";
 
 export type TransitionSettings = {
   type: RTransitionType;
+  direction: RTransitionDirection;
   speed: TransitionSpeed;
 };
 
 export const DEFAULT_TRANSITION: TransitionSettings = {
   type: "fade",
+  direction: "from-left",
   speed: "normal",
 };
 
@@ -54,6 +57,7 @@ export function clipsToGlideProps(
     audioSrc: audio?.downloadURL ?? null,
     subtitles,
     transitionType: transition.type,
+    transitionDirection: transition.direction,
     transitionDurationInFrames: TRANSITION_FRAMES_BY_SPEED[transition.speed],
   };
 }

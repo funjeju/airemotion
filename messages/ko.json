@@ -92,17 +92,33 @@
     "animation": {
       "zoomIn": "줌인",
       "zoomOut": "줌아웃",
-      "pan": "팬"
+      "panLeft": "팬 왼쪽",
+      "panRight": "팬 오른쪽",
+      "panUp": "팬 위로",
+      "panDown": "팬 아래로",
+      "zoomPanLeft": "줌+팬 왼쪽",
+      "zoomPanRight": "줌+팬 오른쪽",
+      "static": "정지"
     },
     "transition": {
       "title": "화면 전환",
       "note": "클립이 바뀔 때의 전환 효과를 영상 전체에 일관되게 적용합니다.",
       "type": "전환",
+      "direction": "방향",
       "speed": "속도",
       "types": {
         "fade": "크로스페이드",
         "slide": "슬라이드",
+        "wipe": "와이프",
+        "flip": "플립",
+        "clockWipe": "시계 와이프",
         "none": "컷"
+      },
+      "directions": {
+        "from-left": "왼쪽",
+        "from-right": "오른쪽",
+        "from-top": "위",
+        "from-bottom": "아래"
       },
       "speeds": {
         "slow": "느리게",

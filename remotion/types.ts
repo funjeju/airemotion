@@ -3,9 +3,40 @@
 export const FPS = 30;
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
-export const TRANSITION_FRAMES = 15; // 0.5s 크로스페이드
 
-export type RAnimation = "zoomIn" | "zoomOut" | "pan" | null;
+// ── 사진 애니메이션(켄 번스) ──
+// 자동 배정은 안전한 소수만(ANIMATION_AUTO_POOL), 수동 선택은 전체 팔레트.
+export type AnimationKind =
+  | "zoomIn"
+  | "zoomOut"
+  | "panLeft"
+  | "panRight"
+  | "panUp"
+  | "panDown"
+  | "zoomPanLeft"
+  | "zoomPanRight"
+  | "static";
+
+export type RAnimation = AnimationKind | null;
+
+export const ANIMATION_PALETTE: AnimationKind[] = [
+  "zoomIn",
+  "zoomOut",
+  "panLeft",
+  "panRight",
+  "panUp",
+  "panDown",
+  "zoomPanLeft",
+  "zoomPanRight",
+  "static",
+];
+
+// AI 자동 배정 풀(무난한 효과만 — 연속 변주가 섞여도 안전).
+export const ANIMATION_AUTO_POOL: AnimationKind[] = [
+  "zoomIn",
+  "zoomOut",
+  "panLeft",
+];
 
 export type RCaption = {
   text: string;
@@ -30,9 +61,38 @@ export type RSubtitle = {
   text: string;
 };
 
-// 화면 전환 (전체 영상에 일관 적용)
-export type RTransitionType = "fade" | "slide" | "none";
+// ── 화면 전환(전체 영상 일관 적용) ──
+export type RTransitionType =
+  | "fade"
+  | "slide"
+  | "wipe"
+  | "flip"
+  | "clockWipe"
+  | "none";
+
+export type RTransitionDirection =
+  | "from-left"
+  | "from-right"
+  | "from-top"
+  | "from-bottom";
+
 export type TransitionSpeed = "slow" | "normal" | "fast";
+
+export const TRANSITION_PALETTE: RTransitionType[] = [
+  "fade",
+  "slide",
+  "wipe",
+  "flip",
+  "clockWipe",
+  "none",
+];
+
+// 방향 옵션이 의미 있는 전환들
+export const DIRECTIONAL_TRANSITIONS: RTransitionType[] = [
+  "slide",
+  "wipe",
+  "flip",
+];
 
 export const TRANSITION_FRAMES_BY_SPEED: Record<TransitionSpeed, number> = {
   slow: 24,
@@ -45,6 +105,7 @@ export type GlideVideoProps = {
   audioSrc: string | null;
   subtitles: RSubtitle[];
   transitionType: RTransitionType;
+  transitionDirection: RTransitionDirection;
   transitionDurationInFrames: number;
 };
 

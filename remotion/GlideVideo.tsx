@@ -8,20 +8,30 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { TransitionSeries, linearTiming } from "@remotion/transitions";
+import {
+  TransitionSeries,
+  linearTiming,
+  type TransitionPresentation,
+} from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
+import { flip } from "@remotion/transitions/flip";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
+import { none } from "@remotion/transitions/none";
 import {
   HEIGHT,
+  WIDTH,
   type GlideVideoProps,
   type RClip,
   type RSubtitle,
+  type RTransitionDirection,
   type RTransitionType,
 } from "./types";
 
 /** 켄 번스 변환 — CSS 애니메이션 금지, useCurrentFrame+interpolate로 매 프레임 계산. */
 function kenBurnsTransform(clip: RClip, frame: number): string {
-  if (clip.type !== "image" || !clip.animation) return "scale(1.02)";
+  if (clip.type !== "image") return "scale(1.02)";
   const p = interpolate(frame, [0, clip.durationInFrames], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -31,8 +41,19 @@ function kenBurnsTransform(clip: RClip, frame: number): string {
       return `scale(${1.04 + 0.12 * p})`;
     case "zoomOut":
       return `scale(${1.16 - 0.12 * p})`;
-    case "pan":
+    case "panLeft":
+      return `scale(1.1) translateX(${3 - 6 * p}%)`;
+    case "panRight":
       return `scale(1.1) translateX(${-3 + 6 * p}%)`;
+    case "panUp":
+      return `scale(1.1) translateY(${3 - 6 * p}%)`;
+    case "panDown":
+      return `scale(1.1) translateY(${-3 + 6 * p}%)`;
+    case "zoomPanLeft":
+      return `scale(${1.06 + 0.12 * p}) translateX(${2 - 4 * p}%)`;
+    case "zoomPanRight":
+      return `scale(${1.06 + 0.12 * p}) translateX(${-2 + 4 * p}%)`;
+    case "static":
     default:
       return "scale(1.02)";
   }
@@ -143,8 +164,23 @@ function SubtitleTrack({ subtitles }: { subtitles: RSubtitle[] }) {
   );
 }
 
-function presentationFor(type: RTransitionType) {
-  return type === "slide" ? slide() : fade();
+function presentationFor(
+  type: RTransitionType,
+  direction: RTransitionDirection,
+): TransitionPresentation<Record<string, unknown>> {
+  const p =
+    type === "slide"
+      ? slide({ direction })
+      : type === "wipe"
+        ? wipe({ direction })
+        : type === "flip"
+          ? flip({ direction })
+          : type === "clockWipe"
+            ? clockWipe({ width: WIDTH, height: HEIGHT })
+            : type === "none"
+              ? none()
+              : fade();
+  return p as TransitionPresentation<Record<string, unknown>>;
 }
 
 export function GlideVideo({
@@ -152,6 +188,7 @@ export function GlideVideo({
   audioSrc,
   subtitles,
   transitionType,
+  transitionDirection,
   transitionDurationInFrames,
 }: GlideVideoProps) {
   // '컷'(none) 또는 전환 길이 0이면 전환 없이 순차 재생.
@@ -173,7 +210,7 @@ export function GlideVideo({
           const trans = (
             <TransitionSeries.Transition
               key={`t-${i}`}
-              presentation={presentationFor(transitionType)}
+              presentation={presentationFor(transitionType, transitionDirection)}
               timing={linearTiming({
                 durationInFrames: transitionDurationInFrames,
               })}

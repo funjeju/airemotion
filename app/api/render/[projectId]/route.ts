@@ -48,6 +48,7 @@ export async function POST(
   const pdata = projectSnap.data() ?? {};
   const props = clipsToGlideProps(clips, captions, {
     type: pdata.transitionType ?? "fade",
+    direction: pdata.transitionDirection ?? "from-left",
     speed: pdata.transitionSpeed ?? "normal",
   });
   if (props.clips.length === 0) {

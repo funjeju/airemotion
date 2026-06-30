@@ -92,17 +92,33 @@
     "animation": {
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
-      "pan": "Pan"
+      "panLeft": "Pan left",
+      "panRight": "Pan right",
+      "panUp": "Pan up",
+      "panDown": "Pan down",
+      "zoomPanLeft": "Zoom + pan left",
+      "zoomPanRight": "Zoom + pan right",
+      "static": "Static"
     },
     "transition": {
       "title": "Transitions",
       "note": "Applies the clip-to-clip transition consistently across the whole video.",
       "type": "Transition",
+      "direction": "Direction",
       "speed": "Speed",
       "types": {
         "fade": "Crossfade",
         "slide": "Slide",
+        "wipe": "Wipe",
+        "flip": "Flip",
+        "clockWipe": "Clock wipe",
         "none": "Cut"
+      },
+      "directions": {
+        "from-left": "Left",
+        "from-right": "Right",
+        "from-top": "Top",
+        "from-bottom": "Bottom"
       },
       "speeds": {
         "slow": "Slow",
