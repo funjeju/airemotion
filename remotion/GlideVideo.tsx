@@ -183,6 +183,34 @@ function presentationFor(
   return p as TransitionPresentation<Record<string, unknown>>;
 }
 
+/**
+ * 배경음악 — 전체 영상 길이에 자동 정합.
+ * - 음악이 짧으면 loop로 채우고, 길면 영상 끝에서 자연히 정리(페이드아웃)
+ * - 시작 페이드인 + 끝 페이드아웃 (지점은 영상 총 길이에서 계산 → 길이 바뀌면 자동 재계산)
+ */
+function BackgroundAudio({ src }: { src: string }) {
+  const { durationInFrames, fps } = useVideoConfig();
+  // 페이드 길이 ~1.5초, 단 영상이 짧으면 줄이고 너무 짧으면 페이드 생략.
+  const fade = Math.min(Math.round(fps * 1.5), Math.floor(durationInFrames / 2) - 1);
+
+  return (
+    <Audio
+      src={src}
+      loop
+      volume={(f) =>
+        fade < 1
+          ? 1
+          : interpolate(
+              f,
+              [0, fade, durationInFrames - fade, durationInFrames],
+              [0, 1, 1, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+            )
+      }
+    />
+  );
+}
+
 export function GlideVideo({
   clips,
   audioSrc,
@@ -220,7 +248,7 @@ export function GlideVideo({
         })}
       </TransitionSeries>
       {subtitles.length > 0 ? <SubtitleTrack subtitles={subtitles} /> : null}
-      {audioSrc ? <Audio src={audioSrc} loop /> : null}
+      {audioSrc ? <BackgroundAudio src={audioSrc} /> : null}
     </AbsoluteFill>
   );
 }
