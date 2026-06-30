@@ -155,6 +155,18 @@ export async function updateClip(
   await updateDoc(doc(getDb(), "projects", projectId, "clips", clipId), patch);
 }
 
+/** 톤 자동 적용 등 — 여러 클립의 길이·애니메이션을 한 번에 갱신. */
+export async function batchUpdateClips(
+  projectId: string,
+  updates: { id: string; durationSec?: number; animation?: Animation | null }[],
+): Promise<void> {
+  const batch = writeBatch(getDb());
+  updates.forEach(({ id, ...patch }) => {
+    batch.update(doc(getDb(), "projects", projectId, "clips", id), patch);
+  });
+  await batch.commit();
+}
+
 export async function deleteClip(
   projectId: string,
   clip: Pick<Clip, "id" | "storagePath">,

@@ -76,7 +76,11 @@ export async function updateProjectSettings(
   patch: Partial<
     Pick<
       Project,
-      "transitionType" | "transitionDirection" | "transitionSpeed"
+      | "transitionType"
+      | "transitionDirection"
+      | "transitionSpeed"
+      | "intentPrompt"
+      | "effectTheme"
     >
   >,
 ): Promise<void> {

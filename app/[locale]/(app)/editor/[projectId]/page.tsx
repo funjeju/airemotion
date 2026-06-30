@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/auth-context";
 import { getClientAuth } from "@/lib/firebase/client";
 import {
+  batchUpdateClips,
   deleteClip,
   listClips,
   reorderClips,
@@ -29,6 +30,12 @@ import {
   DEFAULT_TRANSITION,
   type TransitionSettings,
 } from "@/lib/remotion/to-props";
+import {
+  detectTone,
+  pickFromPool,
+  TONE_PRESET,
+  type Tone,
+} from "@/lib/remotion/tone";
 import type {
   RTransitionDirection,
   RTransitionType,
@@ -37,6 +44,7 @@ import type {
 import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
 import { Inspector } from "@/components/editor/inspector";
+import { ProjectTone } from "@/components/editor/project-tone";
 import { TransitionControl } from "@/components/editor/transition-control";
 import { CaptionReview } from "@/components/editor/caption-review";
 import { RemotionPreview } from "@/components/editor/remotion-preview";
@@ -62,6 +70,10 @@ export default function EditorPage({
   const [captionError, setCaptionError] = useState<string | null>(null);
   const [transition, setTransition] =
     useState<TransitionSettings>(DEFAULT_TRANSITION);
+  const [intentPrompt, setIntentPrompt] = useState("");
+  const [tone, setTone] = useState<Tone>("calm");
+  const [applyingTone, setApplyingTone] = useState(false);
+  const promptTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
@@ -88,6 +100,8 @@ export default function EditorPage({
             project.transitionDirection ?? DEFAULT_TRANSITION.direction,
           speed: project.transitionSpeed ?? DEFAULT_TRANSITION.speed,
         });
+        setIntentPrompt(project.intentPrompt ?? "");
+        setTone(project.effectTheme ?? "calm");
       }
       setLoading(false);
     })();
@@ -269,6 +283,58 @@ export default function EditorPage({
     updateProjectSettings(projectId, patch);
   }
 
+  function handlePromptChange(text: string) {
+    setIntentPrompt(text);
+    setTone(detectTone(text));
+    if (promptTimer.current) clearTimeout(promptTimer.current);
+    promptTimer.current = setTimeout(() => {
+      updateProjectSettings(projectId, { intentPrompt: text });
+    }, 400);
+  }
+
+  function handleToneChange(next: Tone) {
+    setTone(next);
+    updateProjectSettings(projectId, { effectTheme: next });
+  }
+
+  async function handleApplyTone() {
+    const preset = TONE_PRESET[tone];
+    setApplyingTone(true);
+
+    // 전환을 톤 프리셋으로
+    setTransition(preset.transition);
+
+    // 사진 클립에 톤 길이 + 애니메이션(풀 순환) 재배정
+    let prev: Animation | null = null;
+    const updates: { id: string; durationSec: number; animation: Animation }[] =
+      [];
+    const nextClips = clips.map((c) => {
+      if (c.type !== "image") return c;
+      const animation = pickFromPool(preset.animPool, prev);
+      prev = animation;
+      updates.push({ id: c.id, durationSec: preset.photoSec, animation });
+      return { ...c, durationSec: preset.photoSec, animation };
+    });
+    setClips(nextClips);
+
+    try {
+      await Promise.all([
+        updateProjectSettings(projectId, {
+          transitionType: preset.transition.type,
+          transitionDirection: preset.transition.direction,
+          transitionSpeed: preset.transition.speed,
+          effectTheme: tone,
+          intentPrompt,
+        }),
+        updates.length > 0
+          ? batchUpdateClips(projectId, updates)
+          : Promise.resolve(),
+      ]);
+    } finally {
+      setApplyingTone(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <Link
@@ -290,6 +356,16 @@ export default function EditorPage({
             clips={clips}
             captions={captions}
             transition={transition}
+          />
+
+          {/* 영상 분위기(의도 프롬프트) → 톤 자동 적용 */}
+          <ProjectTone
+            prompt={intentPrompt}
+            tone={tone}
+            applying={applyingTone}
+            onPromptChange={handlePromptChange}
+            onToneChange={handleToneChange}
+            onApply={handleApplyTone}
           />
 
           <section className="space-y-3">

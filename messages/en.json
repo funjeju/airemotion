@@ -65,6 +65,19 @@
       "video": "Video",
       "audio": "Music"
     },
+    "tone": {
+      "title": "Video mood",
+      "note": "Describe the mood you want — effects, transitions, and timing adjust automatically.",
+      "placeholder": "e.g. calm family video / lively store promo",
+      "tone": "Tone",
+      "tones": {
+        "calm": "Calm",
+        "lively": "Lively"
+      },
+      "apply": "Apply this mood",
+      "applying": "Applying…",
+      "applyHint": "Re-flows every clip's effect & duration and the transition to match the tone."
+    },
     "inspector": {
       "title": "Clip settings",
       "selectHint": "Select a clip in the timeline.",
