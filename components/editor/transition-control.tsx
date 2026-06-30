@@ -8,6 +8,7 @@ import {
   type RTransitionType,
   type TransitionSpeed,
 } from "@/remotion/types";
+import { TransitionPreview } from "./sample-previews";
 
 const SPEEDS: TransitionSpeed[] = ["slow", "normal", "fast"];
 const DIRECTIONS: RTransitionDirection[] = [
@@ -45,6 +46,10 @@ export function TransitionControl({
         {t("title")}
       </h2>
       <p className="mt-1 text-sm text-muted">{t("note")}</p>
+
+      <div className="mt-3 max-w-[260px]">
+        <TransitionPreview type={type} direction={direction} />
+      </div>
 
       <div className="mt-4 space-y-4">
         <div>

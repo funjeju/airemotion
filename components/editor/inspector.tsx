@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Animation, CaptionOverrides, Clip } from "@/lib/firebase/clips";
 import { ANIMATION_PALETTE } from "@/remotion/types";
+import { EffectPreview } from "./sample-previews";
 
 export function Inspector({
   clip,
@@ -60,7 +61,10 @@ export function Inspector({
           <span className="block text-sm font-medium text-ink">
             {t("animation")}
           </span>
-          <div className="mt-1.5 flex flex-wrap gap-2">
+          <div className="mt-2 max-w-[260px]">
+            <EffectPreview animation={clip.animation ?? "static"} />
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
             {ANIMATION_PALETTE.map((a) => (
               <button
                 key={a}
