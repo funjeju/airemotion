@@ -24,7 +24,9 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       router.replace("/dashboard");
-    } catch {
+    } catch (e) {
+      // 사용자에겐 일반 메시지, 개발 콘솔엔 실제 Firebase 에러를 남긴다.
+      console.error("[login] sign-in failed:", e);
       setError(t("error"));
     } finally {
       setBusy(false);

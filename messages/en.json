@@ -51,8 +51,49 @@
   },
   "editor": {
     "backToDashboard": "Back to dashboard",
-    "comingSoonTitle": "The editor is coming soon",
-    "comingSoonDesc": "Upload, filmstrip timeline, captions, and preview land here in Phase 2."
+    "loading": "Loading…",
+    "upload": {
+      "cta": "Upload photos, videos, music",
+      "hint": "Drag & drop, or click to choose.",
+      "drop": "Drop here",
+      "uploading": "Uploading… {pct}%",
+      "emptyTitle": "Upload photos to begin.",
+      "emptyDesc": "You can add several files at once."
+    },
+    "type": {
+      "image": "Photo",
+      "video": "Video",
+      "audio": "Music"
+    },
+    "inspector": {
+      "title": "Clip settings",
+      "selectHint": "Select a clip in the timeline.",
+      "caption": "Caption",
+      "captionPlaceholder": "Caption for this clip",
+      "advanced": "Fine-tune",
+      "color": "Text color",
+      "bgColor": "Background",
+      "fontSize": "Size",
+      "position": "Position",
+      "top": "Top",
+      "center": "Center",
+      "bottom": "Bottom",
+      "animation": "Effect",
+      "duration": "Duration",
+      "delete": "Delete clip"
+    },
+    "preview": {
+      "play": "Play",
+      "pause": "Pause",
+      "restart": "Restart",
+      "empty": "Upload a photo or video to see the preview.",
+      "reducedMotion": "Reduced motion is on — shown without effects."
+    },
+    "animation": {
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "pan": "Pan"
+    }
   },
   "common": {
     "appName": "Glide"

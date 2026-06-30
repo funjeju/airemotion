@@ -51,8 +51,49 @@
   },
   "editor": {
     "backToDashboard": "대시보드로",
-    "comingSoonTitle": "에디터는 곧 열립니다",
-    "comingSoonDesc": "Phase 2에서 업로드·필름스트립 타임라인·자막·미리보기가 여기에 들어옵니다."
+    "loading": "불러오는 중…",
+    "upload": {
+      "cta": "사진·영상·음악 올리기",
+      "hint": "끌어다 놓거나 클릭해서 선택하세요.",
+      "drop": "여기에 놓으세요",
+      "uploading": "업로드 중… {pct}%",
+      "emptyTitle": "사진을 올려 시작하세요.",
+      "emptyDesc": "여러 파일을 한꺼번에 올릴 수 있어요."
+    },
+    "type": {
+      "image": "사진",
+      "video": "영상",
+      "audio": "음악"
+    },
+    "inspector": {
+      "title": "클립 설정",
+      "selectHint": "타임라인에서 클립을 선택하세요.",
+      "caption": "자막",
+      "captionPlaceholder": "이 클립에 들어갈 자막",
+      "advanced": "세부 조정",
+      "color": "글자색",
+      "bgColor": "배경색",
+      "fontSize": "크기",
+      "position": "위치",
+      "top": "위",
+      "center": "가운데",
+      "bottom": "아래",
+      "animation": "효과",
+      "duration": "길이",
+      "delete": "클립 삭제"
+    },
+    "preview": {
+      "play": "재생",
+      "pause": "일시정지",
+      "restart": "처음부터",
+      "empty": "미리보기를 보려면 사진이나 영상을 올리세요.",
+      "reducedMotion": "모션 줄이기가 켜져 있어 효과 없이 표시됩니다."
+    },
+    "animation": {
+      "zoomIn": "줌인",
+      "zoomOut": "줌아웃",
+      "pan": "팬"
+    }
   },
   "common": {
     "appName": "Glide"
