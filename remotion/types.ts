@@ -63,6 +63,7 @@ export type RClip = {
   durationInFrames: number;
   animation: RAnimation;
   caption: RCaption;
+  scale?: number; // 화면 내 이미지 크기(0.5~1, 기본 1)
   // 영상 트림: 소스에서 잘라낼 시작 지점(초). durationInFrames가 잘린 구간 길이.
   trimStartSec?: number;
 };

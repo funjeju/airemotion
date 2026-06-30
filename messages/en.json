@@ -102,6 +102,8 @@
       "animation": "Effect",
       "duration": "Duration",
       "seconds": "sec",
+      "scale": "Image size",
+      "applyToAll": "Apply to all photos",
       "editVideo": "Edit video (trim & cut)",
       "autoCut": "Auto-cut",
       "autoCutting": "Analyzing…",

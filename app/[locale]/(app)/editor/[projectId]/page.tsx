@@ -209,6 +209,43 @@ export default function EditorPage({
     updateClip(projectId, selectedClip.id, { animation: a });
   }
 
+  function handleScale(scale: number) {
+    if (!selectedClip) return;
+    setClips((cur) =>
+      cur.map((c) => (c.id === selectedClip.id ? { ...c, scale } : c)),
+    );
+    const id = selectedClip.id;
+    const timers = saveTimers.current;
+    if (timers.has(`scale-${id}`)) clearTimeout(timers.get(`scale-${id}`));
+    timers.set(
+      `scale-${id}`,
+      setTimeout(() => {
+        updateClip(projectId, id, { scale });
+        timers.delete(`scale-${id}`);
+      }, 300),
+    );
+  }
+
+  /** 선택 사진의 효과·길이·크기를 모든 사진 클립에 일괄 적용. */
+  function handleApplyToAll() {
+    if (!selectedClip || selectedClip.type !== "image") return;
+    const { animation, durationSec, scale } = selectedClip;
+    setClips((cur) =>
+      cur.map((c) =>
+        c.type === "image" ? { ...c, animation, durationSec, scale } : c,
+      ),
+    );
+    const updates = clips
+      .filter((c) => c.type === "image")
+      .map((c) => ({
+        id: c.id,
+        animation,
+        durationSec,
+        scale: scale ?? 1,
+      }));
+    if (updates.length > 0) batchUpdateClips(projectId, updates);
+  }
+
   async function handleDelete() {
     if (!selectedClip) return;
     const target = selectedClip;
@@ -538,6 +575,8 @@ export default function EditorPage({
                 onOverrides={handleOverrides}
                 onAnimation={handleAnimation}
                 onDuration={handleDuration}
+                onScale={handleScale}
+                onApplyToAll={handleApplyToAll}
                 onOpenTrim={() => selectedClip && setTrimClipId(selectedClip.id)}
                 onAutoCut={() => selectedClip && handleAutoCut(selectedClip)}
                 autoCutting={autoCutting}

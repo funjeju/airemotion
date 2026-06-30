@@ -27,40 +27,46 @@ import {
   type RTransitionType,
 } from "./types";
 
-/** 켄 번스 변환 — CSS 애니메이션 금지, useCurrentFrame+interpolate로 매 프레임 계산. */
-function kenBurnsTransform(clip: RClip, frame: number): string {
-  if (clip.type !== "image") return "scale(1.02)";
+/** 켄 번스 변환 성분(scale·translate) — CSS 애니메이션 금지, 매 프레임 interpolate로 계산. */
+function kenBurns(
+  clip: RClip,
+  frame: number,
+): { scale: number; tx: number; ty: number } {
+  if (clip.type !== "image") return { scale: 1.02, tx: 0, ty: 0 };
   const p = interpolate(frame, [0, clip.durationInFrames], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
   switch (clip.animation) {
     case "zoomIn":
-      return `scale(${1.04 + 0.12 * p})`;
+      return { scale: 1.04 + 0.12 * p, tx: 0, ty: 0 };
     case "zoomOut":
-      return `scale(${1.16 - 0.12 * p})`;
+      return { scale: 1.16 - 0.12 * p, tx: 0, ty: 0 };
     case "panLeft":
-      return `scale(1.1) translateX(${3 - 6 * p}%)`;
+      return { scale: 1.1, tx: 3 - 6 * p, ty: 0 };
     case "panRight":
-      return `scale(1.1) translateX(${-3 + 6 * p}%)`;
+      return { scale: 1.1, tx: -3 + 6 * p, ty: 0 };
     case "panUp":
-      return `scale(1.1) translateY(${3 - 6 * p}%)`;
+      return { scale: 1.1, tx: 0, ty: 3 - 6 * p };
     case "panDown":
-      return `scale(1.1) translateY(${-3 + 6 * p}%)`;
+      return { scale: 1.1, tx: 0, ty: -3 + 6 * p };
     case "zoomPanLeft":
-      return `scale(${1.06 + 0.12 * p}) translateX(${2 - 4 * p}%)`;
+      return { scale: 1.06 + 0.12 * p, tx: 2 - 4 * p, ty: 0 };
     case "zoomPanRight":
-      return `scale(${1.06 + 0.12 * p}) translateX(${-2 + 4 * p}%)`;
+      return { scale: 1.06 + 0.12 * p, tx: -2 + 4 * p, ty: 0 };
     case "static":
     default:
-      return "scale(1.02)";
+      return { scale: 1.02, tx: 0, ty: 0 };
   }
 }
 
 function ClipView({ clip }: { clip: RClip }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const transform = kenBurnsTransform(clip, frame);
+  const kb = kenBurns(clip, frame);
+  // 사용자 크기(축소)를 켄 번스 스케일에 곱한다. <1이면 배경(검정)이 보임.
+  const userScale = clip.type === "image" ? (clip.scale ?? 1) : 1;
+  const transform = `scale(${kb.scale * userScale}) translateX(${kb.tx}%) translateY(${kb.ty}%)`;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "black", overflow: "hidden" }}>

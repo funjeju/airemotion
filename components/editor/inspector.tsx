@@ -12,6 +12,8 @@ export function Inspector({
   onOverrides,
   onAnimation,
   onDuration,
+  onScale,
+  onApplyToAll,
   onOpenTrim,
   onAutoCut,
   autoCutting,
@@ -23,6 +25,8 @@ export function Inspector({
   onOverrides: (patch: CaptionOverrides | null) => void;
   onAnimation: (a: Animation) => void;
   onDuration: (sec: number) => void;
+  onScale: (scale: number) => void;
+  onApplyToAll: () => void;
   onOpenTrim: () => void;
   onAutoCut: () => void;
   autoCutting: boolean;
@@ -110,6 +114,38 @@ export function Inspector({
             <span className="font-mono text-xs text-muted">{t("seconds")}</span>
           </div>
         </div>
+      )}
+
+      {/* 이미지 크기(축소) */}
+      {clip.type === "image" && (
+        <div className="mt-4">
+          <label className="flex items-center justify-between text-sm font-medium text-ink">
+            {t("scale")}
+            <span className="font-mono text-xs text-muted">
+              {Math.round((clip.scale ?? 1) * 100)}%
+            </span>
+          </label>
+          <input
+            type="range"
+            min={50}
+            max={100}
+            step={5}
+            value={Math.round((clip.scale ?? 1) * 100)}
+            onChange={(e) => onScale(Number(e.target.value) / 100)}
+            className="mt-1.5 w-full accent-[var(--accent)]"
+          />
+        </div>
+      )}
+
+      {/* 모든 사진에 이 설정 적용 */}
+      {clip.type === "image" && (
+        <button
+          type="button"
+          onClick={onApplyToAll}
+          className="mt-4 inline-flex items-center gap-2 rounded-[var(--radius)] border border-accent px-4 py-2 text-sm font-medium text-accent transition hover:bg-accent-weak"
+        >
+          ⎘ {t("applyToAll")}
+        </button>
       )}
 
       {/* 영상 편집(트림/컷) + 자동 컷 */}

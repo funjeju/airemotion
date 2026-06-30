@@ -39,6 +39,7 @@ export type Clip = {
   durationSec: number; // 사진=노출시간, 영상=소스 전체 길이
   animation: Animation | null;
   caption: { text: string; overrides: CaptionOverrides | null };
+  scale?: number; // 화면 내 이미지 크기(0.5~1, 기본 1=꽉 채움)
   // 영상 트림(초). 미설정 시 [0, durationSec] 전체.
   trimStart?: number;
   trimEnd?: number;
@@ -162,7 +163,10 @@ export async function updateClip(
   projectId: string,
   clipId: string,
   patch: Partial<
-    Pick<Clip, "caption" | "animation" | "durationSec" | "trimStart" | "trimEnd">
+    Pick<
+      Clip,
+      "caption" | "animation" | "durationSec" | "scale" | "trimStart" | "trimEnd"
+    >
   >,
 ): Promise<void> {
   await updateDoc(doc(getDb(), "projects", projectId, "clips", clipId), patch);
@@ -262,7 +266,12 @@ export async function applyAutoCut(
 /** 톤 자동 적용 등 — 여러 클립의 길이·애니메이션을 한 번에 갱신. */
 export async function batchUpdateClips(
   projectId: string,
-  updates: { id: string; durationSec?: number; animation?: Animation | null }[],
+  updates: {
+    id: string;
+    durationSec?: number;
+    animation?: Animation | null;
+    scale?: number;
+  }[],
 ): Promise<void> {
   const batch = writeBatch(getDb());
   updates.forEach(({ id, ...patch }) => {

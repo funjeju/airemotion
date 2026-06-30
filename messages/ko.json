@@ -102,6 +102,8 @@
       "animation": "효과",
       "duration": "노출 시간",
       "seconds": "초",
+      "scale": "이미지 크기",
+      "applyToAll": "모든 사진에 이 설정 적용",
       "editVideo": "영상 편집 (시작·끝·컷)",
       "autoCut": "자동 컷",
       "autoCutting": "분석 중…",
