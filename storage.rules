@@ -1,0 +1,10 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // users/{uid}/... 경로는 본인만 read/write
+    match /users/{uid}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

@@ -6,7 +6,7 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore";
-import { db } from "./client";
+import { getDb } from "./client";
 
 export type ProjectStatus = "draft" | "rendering" | "done" | "error";
 
@@ -23,7 +23,7 @@ export type Project = {
 
 /** 본인 소유 프로젝트만 조회(보안 규칙과 일치). 정렬은 클라이언트에서(인덱스 불필요). */
 export async function listProjects(uid: string): Promise<Project[]> {
-  const q = query(collection(db, "projects"), where("ownerUid", "==", uid));
+  const q = query(collection(getDb(), "projects"), where("ownerUid", "==", uid));
   const snap = await getDocs(q);
   const items = snap.docs.map(
     (d) => ({ id: d.id, ...d.data() }) as Project,
@@ -38,7 +38,7 @@ export async function createProject(
   uid: string,
   title: string,
 ): Promise<string> {
-  const ref = await addDoc(collection(db, "projects"), {
+  const ref = await addDoc(collection(getDb(), "projects"), {
     ownerUid: uid,
     title,
     intentPrompt: "",

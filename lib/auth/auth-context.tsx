@@ -15,7 +15,7 @@ import {
   type User,
 } from "firebase/auth";
 import { useLocale } from "next-intl";
-import { auth, googleProvider } from "@/lib/firebase/client";
+import { getClientAuth, googleProvider } from "@/lib/firebase/client";
 import { ensureUserDoc } from "@/lib/firebase/users";
 
 type AuthState = {
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(getClientAuth(), (u) => {
       setUser(u);
       setLoading(false);
     });
@@ -41,13 +41,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
-    const cred = await signInWithPopup(auth, googleProvider);
+    const cred = await signInWithPopup(getClientAuth(), googleProvider);
     // 최초 로그인 시 users/{uid} 프로비저닝.
     await ensureUserDoc(cred.user, { locale });
   }, [locale]);
 
   const signOut = useCallback(async () => {
-    await fbSignOut(auth);
+    await fbSignOut(getClientAuth());
   }, []);
 
   const value = useMemo(

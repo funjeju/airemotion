@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 본인 프로필만 read/write
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 소유자 격리: ownerUid == 로그인 uid 인 프로젝트만
+    match /projects/{projectId} {
+      allow read, update, delete: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid;
+
+      // 하위 컬렉션(clips, captions)은 상위 프로젝트 소유자만
+      match /{document=**} {
+        allow read, write: if request.auth != null
+          && get(/databases/$(database)/documents/projects/$(projectId)).data.ownerUid == request.auth.uid;
+      }
+    }
+  }
+}

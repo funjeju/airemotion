@@ -25,6 +25,35 @@
       "renderDesc": "Download your finished video."
     }
   },
+  "auth": {
+    "login": "Log in",
+    "logout": "Log out",
+    "title": "Log in to {brand}",
+    "subtitle": "Get started with your Google account.",
+    "google": "Continue with Google",
+    "signingIn": "Signing in…",
+    "error": "Sign-in failed. Please try again."
+  },
+  "dashboard": {
+    "title": "My projects",
+    "newProject": "New project",
+    "creating": "Creating…",
+    "loading": "Loading…",
+    "untitled": "Untitled project",
+    "emptyTitle": "No projects yet.",
+    "emptyDesc": "Create a new project and upload photos to begin.",
+    "status": {
+      "draft": "Draft",
+      "rendering": "Rendering",
+      "done": "Done",
+      "error": "Error"
+    }
+  },
+  "editor": {
+    "backToDashboard": "Back to dashboard",
+    "comingSoonTitle": "The editor is coming soon",
+    "comingSoonDesc": "Upload, filmstrip timeline, captions, and preview land here in Phase 2."
+  },
   "common": {
     "appName": "Glide"
   }

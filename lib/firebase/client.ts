@@ -1,7 +1,7 @@
-import { getApp, getApps, initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 // 클라이언트 SDK — NEXT_PUBLIC_ 값만 사용(브라우저로 노출돼도 되는 설정).
 const firebaseConfig = {
@@ -13,12 +13,28 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// HMR/중복 초기화 방지 싱글톤.
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// 지연 초기화: 모듈 import 시점(서버 프리렌더 포함)에 getAuth 를 호출하지 않는다.
+// getAuth 는 apiKey 가 비면 throw 하므로, 실제 사용 시점(브라우저)에만 만든다.
+let app: FirebaseApp | undefined;
+function getClientApp(): FirebaseApp {
+  if (!app) app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  return app;
+}
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+let _auth: Auth | undefined;
+export function getClientAuth(): Auth {
+  return (_auth ??= getAuth(getClientApp()));
+}
 
-// 구글 로그인 기본 제공자.
+let _db: Firestore | undefined;
+export function getDb(): Firestore {
+  return (_db ??= getFirestore(getClientApp()));
+}
+
+let _storage: FirebaseStorage | undefined;
+export function getClientStorage(): FirebaseStorage {
+  return (_storage ??= getStorage(getClientApp()));
+}
+
+// 구글 로그인 기본 제공자(생성 시 키 검증 없음 — 안전).
 export const googleProvider = new GoogleAuthProvider();

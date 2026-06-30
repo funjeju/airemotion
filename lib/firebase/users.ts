@@ -1,6 +1,6 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import type { User } from "firebase/auth";
-import { db } from "./client";
+import { getDb } from "./client";
 
 export type UserProfile = {
   displayName: string;
@@ -19,7 +19,7 @@ export async function ensureUserDoc(
   user: User,
   opts: { locale: string },
 ): Promise<void> {
-  const ref = doc(db, "users", user.uid);
+  const ref = doc(getDb(), "users", user.uid);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
