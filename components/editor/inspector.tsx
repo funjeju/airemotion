@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Animation, CaptionOverrides, Clip, Overlay } from "@/lib/firebase/clips";
-import { ANIMATION_PALETTE, type ROverlayType } from "@/remotion/types";
+import {
+  ANIMATION_PALETTE,
+  type AspectRatio,
+  type ROverlayType,
+} from "@/remotion/types";
 import { EffectPreview } from "./sample-previews";
 import { OverlayEditor } from "./overlay-editor";
 
@@ -26,8 +30,10 @@ export function Inspector({
   autoCutting,
   autoCutError,
   onDelete,
+  aspectRatio,
 }: {
   clip: Clip | null;
+  aspectRatio: AspectRatio;
   onCaptionText: (text: string) => void;
   onOverrides: (patch: CaptionOverrides | null) => void;
   onAnimation: (a: Animation) => void;
@@ -163,6 +169,8 @@ export function Inspector({
 
       {/* 요소(말풍선·제목·스티커) 오버레이 */}
       <OverlayEditor
+        clip={clip}
+        aspectRatio={aspectRatio}
         overlays={clip.overlays ?? []}
         onAdd={onAddOverlay}
         onAddEmoji={onAddEmoji}

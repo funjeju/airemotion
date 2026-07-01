@@ -686,6 +686,7 @@ export default function EditorPage({
             <>
               <Inspector
                 clip={selectedClip}
+                aspectRatio={aspectRatio}
                 onCaptionText={handleCaptionText}
                 onOverrides={handleOverrides}
                 onAnimation={handleAnimation}

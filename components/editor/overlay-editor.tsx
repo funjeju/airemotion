@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import type { Overlay } from "@/lib/firebase/clips";
+import type { Clip, Overlay } from "@/lib/firebase/clips";
 import {
   OVERLAY_ANIMS,
   OVERLAY_HAS_TEXT,
   OVERLAY_TYPES,
+  type AspectRatio,
   type ROverlayType,
 } from "@/remotion/types";
 
@@ -32,6 +33,8 @@ const COLOR_TYPES: ROverlayType[] = [
 ];
 
 export function OverlayEditor({
+  clip,
+  aspectRatio,
   overlays,
   onAdd,
   onAddEmoji,
@@ -40,6 +43,8 @@ export function OverlayEditor({
   onUpdate,
   onDelete,
 }: {
+  clip: Clip;
+  aspectRatio: AspectRatio;
   overlays: Overlay[];
   onAdd: (type: ROverlayType) => void;
   onAddEmoji: (emoji: string) => void;
@@ -102,6 +107,17 @@ export function OverlayEditor({
           </button>
         ))}
       </div>
+
+      {/* 드래그 위치 패드 */}
+      {overlays.length > 0 ? (
+        <OverlayPositioner
+          clip={clip}
+          aspectRatio={aspectRatio}
+          overlays={overlays}
+          onMove={(id, x, y) => onUpdate(id, { x, y })}
+          hint={t("dragHint")}
+        />
+      ) : null}
 
       {/* 추가된 요소 목록 */}
       {overlays.length > 0 ? (
@@ -228,6 +244,90 @@ export function OverlayEditor({
           })}
         </ul>
       ) : null}
+    </div>
+  );
+}
+
+/** 클립 위에서 요소를 드래그해 자유 배치. */
+function OverlayPositioner({
+  clip,
+  aspectRatio,
+  overlays,
+  onMove,
+  hint,
+}: {
+  clip: Clip;
+  aspectRatio: AspectRatio;
+  overlays: Overlay[];
+  onMove: (id: string, x: number, y: number) => void;
+  hint: string;
+}) {
+  const padRef = useRef<HTMLDivElement>(null);
+  const dragId = useRef<string | null>(null);
+
+  useEffect(() => {
+    function move(e: PointerEvent) {
+      const pad = padRef.current;
+      if (!dragId.current || !pad) return;
+      const r = pad.getBoundingClientRect();
+      const x = Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100));
+      const y = Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100));
+      onMove(dragId.current, x, y);
+    }
+    function up() {
+      dragId.current = null;
+    }
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+  }, [onMove]);
+
+  return (
+    <div className="mt-3">
+      <div
+        ref={padRef}
+        className="relative mx-auto max-w-[320px] touch-none select-none overflow-hidden rounded-lg border border-line bg-black"
+        style={{ aspectRatio: aspectRatio.replace(":", " / ") }}
+      >
+        {clip.type === "image" ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={clip.downloadURL}
+            alt=""
+            className="h-full w-full object-cover opacity-90"
+            draggable={false}
+          />
+        ) : (
+          <video
+            src={clip.downloadURL}
+            className="h-full w-full object-cover opacity-90"
+            muted
+            preload="metadata"
+          />
+        )}
+        {overlays.map((o) => (
+          <button
+            key={o.id}
+            type="button"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              dragId.current = o.id;
+            }}
+            className="absolute cursor-grab rounded-md border border-white/70 bg-black/55 px-1.5 py-0.5 text-xs text-white shadow active:cursor-grabbing"
+            style={{
+              left: `${o.x}%`,
+              top: `${o.y}%`,
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            {o.type === "emoji" ? o.text || "😀" : o.type === "image" ? "🖼" : (o.text || o.type).slice(0, 8)}
+          </button>
+        ))}
+      </div>
+      <p className="mt-1 text-center text-[11px] text-muted">{hint}</p>
     </div>
   );
 }

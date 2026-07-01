@@ -126,6 +126,7 @@
         "size": "크기",
         "color": "색",
         "anim": "등장 효과",
+        "dragHint": "요소를 끌어서 위치를 옮기세요",
         "uploadImage": "이미지 요소",
         "uploading": "올리는 중…",
         "remove": "요소 삭제",

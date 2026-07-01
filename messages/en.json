@@ -126,6 +126,7 @@
         "size": "Size",
         "color": "Color",
         "anim": "Entrance",
+        "dragHint": "Drag elements to reposition",
         "uploadImage": "Image element",
         "uploading": "Uploading…",
         "remove": "Remove element",
