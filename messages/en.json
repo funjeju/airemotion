@@ -270,6 +270,48 @@
       "captionPlaceholder": "Caption for this clip",
       "hint": "Title & caption apply only to the selected clip.",
       "selectHint": "Select a clip in the timeline above to add a caption or title."
+    },
+    "actions": {
+      "title": "Title",
+      "caption": "Caption",
+      "animation": "Animation",
+      "asset": "Elements",
+      "transition": "Transition",
+      "music": "Music",
+      "scopeAll": "All clips",
+      "scopeOne": "One clip",
+      "pickClip": "Pick a clip",
+      "done": "Done",
+      "titlePlaceholder": "Big title text",
+      "captionPlaceholder": "Caption text",
+      "autoCaption": "Generate captions",
+      "autoCaptionHint": "Create captions from speech",
+      "transcribing": "Working…",
+      "assetAllHint": "Adds the element to all clips.",
+      "anim": {
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "panLeft": "Pan left",
+        "panRight": "Pan right",
+        "panUp": "Pan up",
+        "panDown": "Pan down",
+        "zoomPanLeft": "Zoom+pan L",
+        "zoomPanRight": "Zoom+pan R",
+        "static": "Static"
+      },
+      "overlayType": {
+        "title": "Title",
+        "speech": "Bubble",
+        "badge": "Badge",
+        "arrow": "Arrow",
+        "star": "Star",
+        "heart": "Heart",
+        "circle": "Circle",
+        "emoji": "Emoji",
+        "image": "Image"
+      },
+      "duration": "Duration (s)",
+      "size": "Image size"
     }
   },
   "common": {

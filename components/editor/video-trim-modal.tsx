@@ -16,11 +16,15 @@ export function VideoTrimModal({
   onClose,
   onApply,
   onSplit,
+  onAutoCut,
+  autoCutting,
 }: {
   clip: Clip;
   onClose: () => void;
   onApply: (trimStart: number, trimEnd: number) => void;
   onSplit: (atSec: number) => void;
+  onAutoCut?: () => void;
+  autoCutting?: boolean;
 }) {
   const t = useTranslations("editor.trim");
   const source = clip.durationSec;
@@ -196,6 +200,16 @@ export function VideoTrimModal({
           >
             ✂ {t("split")}
           </button>
+          {onAutoCut ? (
+            <button
+              type="button"
+              onClick={onAutoCut}
+              disabled={autoCutting}
+              className="rounded-[var(--radius)] border border-accent px-3 py-1.5 text-sm font-medium text-accent transition hover:bg-accent-weak disabled:opacity-50"
+            >
+              {autoCutting ? "분석 중…" : "✨ 자동 컷"}
+            </button>
+          ) : null}
 
           <div className="ml-auto flex items-center gap-2 font-mono text-xs text-muted">
             <label className="flex items-center gap-1">

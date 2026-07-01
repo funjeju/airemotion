@@ -116,9 +116,21 @@ function OverlayLayer({
   const { fps, height } = useVideoConfig();
   const appear = Math.min(fps * 0.4, clipDuration * 0.3);
 
+  // 텍스트형인데 내용이 비면 아무것도 안 보이게(디폴트 텍스트 없음).
+  const visible = overlays.filter(
+    (o) =>
+      !(
+        (o.type === "title" ||
+          o.type === "speech" ||
+          o.type === "badge" ||
+          o.type === "emoji") &&
+        !o.text.trim()
+      ),
+  );
+
   return (
     <AbsoluteFill>
-      {overlays.map((o) => {
+      {visible.map((o) => {
         const base = interpolate(frame, [0, appear], [0, 1], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
@@ -230,7 +242,7 @@ function OverlayShape({
             boxShadow: "0 6px 24px rgba(0,0,0,0.25)",
           }}
         >
-          {o.text || "제목"}
+          {o.text}
         </span>
       );
     case "speech":
@@ -254,7 +266,7 @@ function OverlayShape({
               boxShadow: "0 6px 24px rgba(0,0,0,0.2)",
             }}
           >
-            {o.text || "말풍선"}
+            {o.text}
           </span>
           <span
             style={{
@@ -287,7 +299,7 @@ function OverlayShape({
             textTransform: "uppercase",
           }}
         >
-          {o.text || "NEW"}
+          {o.text}
         </span>
       );
     case "arrow":
@@ -348,7 +360,7 @@ function OverlayShape({
             filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.25))",
           }}
         >
-          {o.text || "😀"}
+          {o.text}
         </span>
       );
     case "image":

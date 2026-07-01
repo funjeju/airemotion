@@ -42,7 +42,6 @@ import {
   type Tone,
 } from "@/lib/remotion/tone";
 import {
-  OVERLAY_HAS_TEXT,
   type AspectRatio,
   type ROverlayType,
   type RTransitionDirection,
@@ -51,12 +50,14 @@ import {
 } from "@/remotion/types";
 import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
-import { Inspector } from "@/components/editor/inspector";
 import { ProjectTone } from "@/components/editor/project-tone";
 import { SimpleClipPanel } from "@/components/editor/simple-clip-panel";
 import { AspectControl } from "@/components/editor/aspect-control";
-import { TransitionControl } from "@/components/editor/transition-control";
-import { CaptionReview } from "@/components/editor/caption-review";
+import {
+  ActionToolbar,
+  type EditorAction,
+} from "@/components/editor/action-toolbar";
+import { ActionModal } from "@/components/editor/action-modal";
 import { MusicTrack } from "@/components/editor/music-track";
 import { AudioTimeline } from "@/components/editor/audio-timeline";
 import { VideoTrimModal } from "@/components/editor/video-trim-modal";
@@ -90,6 +91,7 @@ export default function EditorPage({
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
   const [endFadeOut, setEndFadeOut] = useState(true);
   const [mode, setMode] = useState<"simple" | "advanced">("simple");
+  const [activeAction, setActiveAction] = useState<EditorAction | null>(null);
   const [trimClipId, setTrimClipId] = useState<string | null>(null);
   const [autoCutting, setAutoCutting] = useState(false);
   const [autoCutError, setAutoCutError] = useState<string | null>(null);
@@ -257,8 +259,8 @@ export default function EditorPage({
 
   function handleAddOverlay(type: ROverlayType) {
     if (!selectedClip) return;
-    const text = OVERLAY_HAS_TEXT[type] ? t(`overlay.defaults.${type}`) : "";
-    const overlay = makeOverlay(type, text);
+    // 텍스트형은 빈 값으로 시작(디폴트 텍스트 없음 → 입력 전엔 안 보임).
+    const overlay = makeOverlay(type, "");
     const overlays = [...(selectedClip.overlays ?? []), overlay];
     setClips((cur) =>
       cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays } : c)),
@@ -307,13 +309,119 @@ export default function EditorPage({
     if (!selectedClip) return;
     const overlays = selectedClip.overlays ?? [];
     const existing = overlays.find((o) => o.type === "title");
-    const next = existing
-      ? overlays.map((o) => (o.id === existing.id ? { ...o, text } : o))
-      : [...overlays, makeOverlay("title", text)];
+    let next: Overlay[];
+    if (!text.trim()) {
+      // 비우면 타이틀 오버레이 제거(아무것도 안 남김).
+      next = existing ? overlays.filter((o) => o.id !== existing.id) : overlays;
+    } else if (existing) {
+      next = overlays.map((o) => (o.id === existing.id ? { ...o, text } : o));
+    } else {
+      next = [...overlays, makeOverlay("title", text)];
+    }
     setClips((cur) =>
       cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays: next } : c)),
     );
     saveOverlays(selectedClip.id, next);
+  }
+
+  // ── 스코프(대상 클립 ids) 배치 적용 ──
+  function scheduleBatch(
+    key: string,
+    updates: Parameters<typeof batchUpdateClips>[1],
+  ) {
+    const timers = saveTimers.current;
+    if (timers.has(key)) clearTimeout(timers.get(key));
+    timers.set(
+      key,
+      setTimeout(() => {
+        if (updates.length) batchUpdateClips(projectId, updates);
+        timers.delete(key);
+      }, 400),
+    );
+  }
+
+  function setTitleFor(ids: string[], text: string) {
+    const updates = clips
+      .filter((c) => ids.includes(c.id))
+      .map((c) => {
+        const ov = c.overlays ?? [];
+        const ex = ov.find((o) => o.type === "title");
+        let next: Overlay[];
+        if (!text.trim()) next = ex ? ov.filter((o) => o.id !== ex.id) : ov;
+        else if (ex) next = ov.map((o) => (o.id === ex.id ? { ...o, text } : o));
+        else next = [...ov, makeOverlay("title", text)];
+        return { id: c.id, overlays: next };
+      });
+    setClips((cur) =>
+      cur.map((c) => {
+        const u = updates.find((x) => x.id === c.id);
+        return u ? { ...c, overlays: u.overlays } : c;
+      }),
+    );
+    scheduleBatch("s-title", updates);
+  }
+
+  function setCaptionFor(ids: string[], text: string) {
+    const updates = clips
+      .filter((c) => ids.includes(c.id))
+      .map((c) => ({ id: c.id, caption: { ...c.caption, text } }));
+    setClips((cur) =>
+      cur.map((c) => {
+        const u = updates.find((x) => x.id === c.id);
+        return u ? { ...c, caption: u.caption } : c;
+      }),
+    );
+    scheduleBatch("s-caption", updates);
+  }
+
+  function setAnimationFor(ids: string[], anim: Animation) {
+    const updates = clips
+      .filter((c) => ids.includes(c.id) && c.type === "image")
+      .map((c) => ({ id: c.id, animation: anim }));
+    setClips((cur) =>
+      cur.map((c) =>
+        updates.some((u) => u.id === c.id) ? { ...c, animation: anim } : c,
+      ),
+    );
+    if (updates.length) batchUpdateClips(projectId, updates);
+  }
+
+  function setDurationFor(ids: string[], sec: number) {
+    const d = Math.min(30, Math.max(0.5, sec || 0.5));
+    const updates = clips
+      .filter((c) => ids.includes(c.id) && c.type === "image")
+      .map((c) => ({ id: c.id, durationSec: d }));
+    setClips((cur) =>
+      cur.map((c) =>
+        updates.some((u) => u.id === c.id) ? { ...c, durationSec: d } : c,
+      ),
+    );
+    scheduleBatch("s-dur", updates);
+  }
+
+  function setScaleFor(ids: string[], scale: number) {
+    const updates = clips
+      .filter((c) => ids.includes(c.id) && c.type === "image")
+      .map((c) => ({ id: c.id, scale }));
+    setClips((cur) =>
+      cur.map((c) =>
+        updates.some((u) => u.id === c.id) ? { ...c, scale } : c,
+      ),
+    );
+    scheduleBatch("s-scale", updates);
+  }
+
+  function addOverlayFor(ids: string[], make: () => Overlay) {
+    const updates = clips
+      .filter((c) => ids.includes(c.id))
+      .map((c) => ({ id: c.id, overlays: [...(c.overlays ?? []), make()] }));
+    setClips((cur) =>
+      cur.map((c) => {
+        const u = updates.find((x) => x.id === c.id);
+        return u ? { ...c, overlays: u.overlays } : c;
+      }),
+    );
+    if (updates.length) batchUpdateClips(projectId, updates);
   }
 
   async function handleUploadOverlayImage(file: File) {
@@ -738,6 +846,11 @@ export default function EditorPage({
               selectedId={selectedId}
               onSelect={setSelectedId}
               onReorder={handleReorder}
+              onDelete={(id) => {
+                const c = clips.find((x) => x.id === id);
+                if (c) handleDeleteClip(c);
+              }}
+              onEditVideo={(id) => setTrimClipId(id)}
             />
             <UploadDropzone
               onFiles={handleFiles}
@@ -764,55 +877,11 @@ export default function EditorPage({
             />
           )}
 
-          {/* ── 복잡 모드 전용: 디테일 편집 ── */}
+          {/* ── 복잡 모드: 상단 액션 메뉴 → 클릭 시 편집 창 ── */}
           {mode === "advanced" && (
             <>
-              <Inspector
-                clip={selectedClip}
-                aspectRatio={aspectRatio}
-                titleText={selectedTitle}
-                onTitle={handleSetTitle}
-                onCaptionText={handleCaptionText}
-                onOverrides={handleOverrides}
-                onAnimation={handleAnimation}
-                onDuration={handleDuration}
-                onScale={handleScale}
-                onApplyToAll={handleApplyToAll}
-                onAddOverlay={handleAddOverlay}
-                onAddEmoji={handleAddEmoji}
-                onUploadOverlayImage={handleUploadOverlayImage}
-                overlayUploading={overlayUploading}
-                onUpdateOverlay={handleUpdateOverlay}
-                onDeleteOverlay={handleDeleteOverlay}
-                onApplyOverlaysToAll={handleApplyOverlaysToAll}
-                onOpenTrim={() => selectedClip && setTrimClipId(selectedClip.id)}
-                onAutoCut={() => selectedClip && handleAutoCut(selectedClip)}
-                autoCutting={autoCutting}
-                autoCutError={autoCutError}
-                onDelete={handleDelete}
-              />
-
-              {/* 화면비율 */}
+              <ActionToolbar onOpen={setActiveAction} />
               <AspectControl value={aspectRatio} onChange={handleAspectChange} />
-
-              {/* 화면 전환 (전체 일관 적용) */}
-              <TransitionControl
-                type={transition.type}
-                direction={transition.direction}
-                speed={transition.speed}
-                onChange={handleTransitionChange}
-              />
-
-              {/* 자동 자막 (Whisper) + 검수 */}
-              <CaptionReview
-                captions={captions}
-                hasAudioSource={hasAudioSource}
-                transcribing={transcribing}
-                error={captionError}
-                onTranscribe={handleTranscribe}
-                onEdit={handleCaptionEdit}
-                onDelete={handleCaptionDelete}
-              />
             </>
           )}
 
@@ -879,6 +948,46 @@ export default function EditorPage({
           onClose={() => setTrimClipId(null)}
           onApply={handleApplyTrim}
           onSplit={handleSplit}
+          onAutoCut={() => handleAutoCut(trimClip)}
+          autoCutting={autoCutting}
+        />
+      ) : null}
+
+      {activeAction ? (
+        <ActionModal
+          action={activeAction}
+          clips={visualClips}
+          audioClips={audioClips}
+          aspectRatio={aspectRatio}
+          transition={transition}
+          selectedId={selectedId}
+          onPick={setSelectedId}
+          onClose={() => setActiveAction(null)}
+          onTitle={setTitleFor}
+          onCaption={setCaptionFor}
+          onAnimation={setAnimationFor}
+          onDuration={setDurationFor}
+          onScale={setScaleFor}
+          onAddOverlay={addOverlayFor}
+          onTransitionChange={handleTransitionChange}
+          onGenerateCaptions={handleTranscribe}
+          transcribing={transcribing}
+          hasAudioSource={hasAudioSource}
+          captionError={captionError}
+          captions={captions}
+          onCaptionEdit={handleCaptionEdit}
+          onCaptionDelete={handleCaptionDelete}
+          onUploadFiles={handleFiles}
+          uploadingPct={uploadingPct}
+          onToggleMute={handleToggleMute}
+          onDeleteMusic={handleDeleteClip}
+          onOverlayAdd={handleAddOverlay}
+          onOverlayAddEmoji={handleAddEmoji}
+          onOverlayUpload={handleUploadOverlayImage}
+          overlayUploading={overlayUploading}
+          onOverlayUpdate={handleUpdateOverlay}
+          onOverlayDelete={handleDeleteOverlay}
+          onOverlayApplyAll={handleApplyOverlaysToAll}
         />
       ) : null}
     </div>

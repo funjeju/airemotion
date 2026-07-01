@@ -270,6 +270,48 @@
       "captionPlaceholder": "이 클립에 넣을 자막",
       "hint": "타이틀·자막은 선택한 클립에만 들어갑니다.",
       "selectHint": "위 타임라인에서 클립을 선택하면 자막·타이틀을 넣을 수 있어요."
+    },
+    "actions": {
+      "title": "타이틀",
+      "caption": "자막",
+      "animation": "애니메이션",
+      "asset": "에셋(요소)",
+      "transition": "화면 전환",
+      "music": "음악",
+      "scopeAll": "전체 클립",
+      "scopeOne": "특정 클립",
+      "pickClip": "클립을 선택하세요",
+      "done": "완료",
+      "titlePlaceholder": "큰 제목 텍스트",
+      "captionPlaceholder": "자막 텍스트",
+      "autoCaption": "자동 자막 생성",
+      "autoCaptionHint": "음성에서 자막을 만들어요",
+      "transcribing": "만드는 중…",
+      "assetAllHint": "누르면 모든 클립에 그 요소가 추가됩니다.",
+      "anim": {
+        "zoomIn": "줌인",
+        "zoomOut": "줌아웃",
+        "panLeft": "팬 왼쪽",
+        "panRight": "팬 오른쪽",
+        "panUp": "팬 위로",
+        "panDown": "팬 아래로",
+        "zoomPanLeft": "줌+팬 왼쪽",
+        "zoomPanRight": "줌+팬 오른쪽",
+        "static": "정지"
+      },
+      "overlayType": {
+        "title": "제목",
+        "speech": "말풍선",
+        "badge": "배지",
+        "arrow": "화살표",
+        "star": "별",
+        "heart": "하트",
+        "circle": "강조원",
+        "emoji": "이모지",
+        "image": "이미지"
+      },
+      "duration": "노출 시간(초)",
+      "size": "이미지 크기"
     }
   },
   "common": {

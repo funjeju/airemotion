@@ -16,11 +16,15 @@ export function Filmstrip({
   selectedId,
   onSelect,
   onReorder,
+  onDelete,
+  onEditVideo,
 }: {
   clips: Clip[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onReorder: (orderedIds: string[]) => void;
+  onDelete?: (id: string) => void;
+  onEditVideo?: (id: string) => void;
 }) {
   const t = useTranslations("editor");
   const [dragId, setDragId] = useState<string | null>(null);
@@ -64,6 +68,37 @@ export function Filmstrip({
           >
             <span className="absolute left-1.5 top-1.5 z-10 flex h-5 min-w-5 items-center justify-center rounded-md bg-black/55 px-1 font-mono text-[11px] text-white">
               {i + 1}
+            </span>
+            {/* hover 액션: 영상 편집 / 삭제 */}
+            <span className="absolute right-1 top-1 z-10 flex gap-1 opacity-0 transition group-hover:opacity-100">
+              {clip.type === "video" && onEditVideo ? (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditVideo(clip.id);
+                  }}
+                  className="flex h-5 w-5 items-center justify-center rounded bg-black/60 text-[11px] text-white hover:bg-accent"
+                  title="영상 편집"
+                >
+                  ✂
+                </span>
+              ) : null}
+              {onDelete ? (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(clip.id);
+                  }}
+                  className="flex h-5 w-5 items-center justify-center rounded bg-black/60 text-[11px] text-white hover:bg-render"
+                  title="삭제"
+                >
+                  ✕
+                </span>
+              ) : null}
             </span>
             <div className="relative aspect-video w-full bg-bg">
               {clip.type === "image" ? (

@@ -326,6 +326,7 @@ export async function batchUpdateClips(
     animation?: Animation | null;
     scale?: number;
     overlays?: Overlay[];
+    caption?: Clip["caption"];
   }[],
 ): Promise<void> {
   const batch = writeBatch(getDb());
