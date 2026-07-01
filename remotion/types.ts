@@ -65,8 +65,11 @@ export type ROverlayType =
   | "arrow"
   | "star"
   | "heart"
-  | "circle";
+  | "circle"
+  | "emoji"
+  | "image";
 
+// 팔레트(버튼)로 추가하는 도형/텍스트 요소. 이모지·이미지는 별도 UI로 추가.
 export const OVERLAY_TYPES: ROverlayType[] = [
   "title",
   "speech",
@@ -85,12 +88,31 @@ export const OVERLAY_HAS_TEXT: Record<ROverlayType, boolean> = {
   star: false,
   heart: false,
   circle: false,
+  emoji: true,
+  image: false,
 };
+
+export type ROverlayAnim =
+  | "fade"
+  | "pop"
+  | "slideUp"
+  | "slideDown"
+  | "typing";
+
+export const OVERLAY_ANIMS: ROverlayAnim[] = [
+  "fade",
+  "pop",
+  "slideUp",
+  "slideDown",
+  "typing",
+];
 
 export type ROverlay = {
   id: string;
   type: ROverlayType;
   text: string; // 텍스트형만 사용
+  src?: string; // 이미지 클립아트(type==="image")
+  anim?: ROverlayAnim;
   x: number; // 0~100 (%)
   y: number; // 0~100 (%)
   scale: number; // 0.5~2

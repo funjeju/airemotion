@@ -26,20 +26,27 @@ import {
 
 export type Overlay = ROverlay;
 
-/** 새 오버레이 기본값(중앙, 악센트 색). 텍스트 기본값은 호출부에서 전달. */
-export function makeOverlay(type: ROverlayType, text: string): Overlay {
-  return {
+/** 새 오버레이 기본값(중앙, 악센트 색). 텍스트/이미지 값은 호출부에서 전달. */
+export function makeOverlay(
+  type: ROverlayType,
+  text: string,
+  src?: string,
+): Overlay {
+  const overlay: Overlay = {
     id:
       typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
     type,
     text,
+    anim: "fade",
     x: 50,
     y: type === "title" ? 22 : 50,
     scale: 1,
     color: "#5654d4",
   };
+  if (src) overlay.src = src; // undefined는 Firestore가 거부
+  return overlay;
 }
 
 export type ClipType = "image" | "video" | "audio";
@@ -169,6 +176,21 @@ export async function uploadClip(
   const docRef = doc(clipsCol(projectId));
   await setDoc(docRef, { ...clip, createdAt: serverTimestamp() });
   return { id: docRef.id, ...clip };
+}
+
+/** 오버레이용 이미지(클립아트/스티커) 업로드 → 다운로드 URL 반환. */
+export async function uploadOverlayImage(
+  uid: string,
+  projectId: string,
+  file: File,
+): Promise<string> {
+  const safeName = `${Date.now()}-${file.name.replace(/[^\w.\-]/g, "_")}`;
+  const path = `users/${uid}/projects/${projectId}/overlays/${safeName}`;
+  const storageRef = ref(getClientStorage(), path);
+  await uploadBytesResumable(storageRef, file, {
+    contentType: file.type || undefined,
+  }).then(() => undefined);
+  return getDownloadURL(storageRef);
 }
 
 /** 드래그 정렬 결과를 한 번에 반영(배치). */

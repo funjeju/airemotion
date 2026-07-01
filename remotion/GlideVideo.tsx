@@ -5,6 +5,7 @@ import {
   interpolate,
   OffthreadVideo,
   Sequence,
+  spring,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -100,36 +101,74 @@ function ClipView({ clip }: { clip: RClip }) {
   );
 }
 
-/** 오버레이(요소) — 말풍선·제목·스티커. 등장 시 페이드+상승. */
+/** 오버레이(요소) — 말풍선·제목·스티커·이모지·이미지. 등장 애니메이션 프리셋. */
 function OverlayLayer({ overlays }: { overlays: ROverlay[] }) {
   const frame = useCurrentFrame();
   const { fps, height } = useVideoConfig();
   const appear = fps * 0.4;
-  const opacity = interpolate(frame, [0, appear], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const rise = interpolate(frame, [0, appear], [height * 0.02, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
 
   return (
     <AbsoluteFill>
-      {overlays.map((o) => (
-        <div
-          key={o.id}
-          style={{
-            position: "absolute",
-            left: `${o.x}%`,
-            top: `${o.y}%`,
-            transform: `translate(-50%, calc(-50% + ${rise}px)) scale(${o.scale})`,
-            opacity,
-          }}
-        >
-          <OverlayShape overlay={o} height={height} />
-        </div>
-      ))}
+      {overlays.map((o) => {
+        const base = interpolate(frame, [0, appear], [0, 1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+        let opacity = base;
+        let ty = 0;
+        let scaleMul = 1;
+        let text = o.text;
+
+        switch (o.anim) {
+          case "pop": {
+            const s = spring({
+              frame,
+              fps,
+              config: { damping: 12, stiffness: 140 },
+              durationInFrames: appear,
+            });
+            scaleMul = 0.6 + 0.4 * s;
+            break;
+          }
+          case "slideUp":
+            ty = (1 - base) * height * 0.06;
+            break;
+          case "slideDown":
+            ty = -(1 - base) * height * 0.06;
+            break;
+          case "typing": {
+            opacity = 1;
+            if (o.text) {
+              const total = o.text.length;
+              const shown = Math.floor(
+                interpolate(frame, [0, Math.max(1, total) * 2], [0, total], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                }),
+              );
+              text = o.text.slice(0, shown);
+            }
+            break;
+          }
+          default:
+            break; // fade
+        }
+
+        return (
+          <div
+            key={o.id}
+            style={{
+              position: "absolute",
+              left: `${o.x}%`,
+              top: `${o.y}%`,
+              transform: `translate(-50%, calc(-50% + ${ty}px)) scale(${o.scale * scaleMul})`,
+              opacity,
+            }}
+          >
+            <OverlayShape overlay={{ ...o, text }} height={height} />
+          </div>
+        );
+      })}
     </AbsoluteFill>
   );
 }
@@ -268,6 +307,30 @@ function OverlayShape({
           />
         </svg>
       );
+    case "emoji":
+      return (
+        <span
+          style={{
+            fontSize: height * 0.12,
+            lineHeight: 1,
+            filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.25))",
+          }}
+        >
+          {o.text || "😀"}
+        </span>
+      );
+    case "image":
+      return o.src ? (
+        <Img
+          src={o.src}
+          onError={() => {}}
+          style={{
+            width: height * 0.28,
+            height: "auto",
+            filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.3))",
+          }}
+        />
+      ) : null;
     default:
       return null;
   }

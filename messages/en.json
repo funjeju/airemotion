@@ -125,6 +125,9 @@
         "position": "Position",
         "size": "Size",
         "color": "Color",
+        "anim": "Entrance",
+        "uploadImage": "Image element",
+        "uploading": "Uploading…",
         "remove": "Remove element",
         "types": {
           "title": "Title",
@@ -133,7 +136,16 @@
           "arrow": "Arrow",
           "star": "Star",
           "heart": "Heart",
-          "circle": "Circle"
+          "circle": "Circle",
+          "emoji": "Emoji",
+          "image": "Image"
+        },
+        "anims": {
+          "fade": "Fade",
+          "pop": "Pop",
+          "slideUp": "Up",
+          "slideDown": "Down",
+          "typing": "Typing"
         },
         "defaults": {
           "title": "Title",

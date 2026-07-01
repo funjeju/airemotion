@@ -15,6 +15,7 @@ import {
   splitVideoClip,
   updateClip,
   uploadClip,
+  uploadOverlayImage,
   type Animation,
   type CaptionOverrides,
   type Clip,
@@ -89,6 +90,7 @@ export default function EditorPage({
   const [trimClipId, setTrimClipId] = useState<string | null>(null);
   const [autoCutting, setAutoCutting] = useState(false);
   const [autoCutError, setAutoCutError] = useState<string | null>(null);
+  const [overlayUploading, setOverlayUploading] = useState(false);
   const promptTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
@@ -278,6 +280,31 @@ export default function EditorPage({
       cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays } : c)),
     );
     updateClip(projectId, selectedClip.id, { overlays });
+  }
+
+  function addOverlayToSelected(overlay: ReturnType<typeof makeOverlay>) {
+    if (!selectedClip) return;
+    const overlays = [...(selectedClip.overlays ?? []), overlay];
+    setClips((cur) =>
+      cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays } : c)),
+    );
+    updateClip(projectId, selectedClip.id, { overlays });
+  }
+
+  function handleAddEmoji(emoji: string) {
+    addOverlayToSelected(makeOverlay("emoji", emoji));
+  }
+
+  async function handleUploadOverlayImage(file: File) {
+    const user = getClientAuth().currentUser;
+    if (!user || !selectedClip) return;
+    setOverlayUploading(true);
+    try {
+      const src = await uploadOverlayImage(user.uid, projectId, file);
+      addOverlayToSelected(makeOverlay("image", "", src));
+    } finally {
+      setOverlayUploading(false);
+    }
   }
 
   /** 선택 사진의 효과·길이·크기를 모든 사진 클립에 일괄 적용. */
@@ -666,6 +693,9 @@ export default function EditorPage({
                 onScale={handleScale}
                 onApplyToAll={handleApplyToAll}
                 onAddOverlay={handleAddOverlay}
+                onAddEmoji={handleAddEmoji}
+                onUploadOverlayImage={handleUploadOverlayImage}
+                overlayUploading={overlayUploading}
                 onUpdateOverlay={handleUpdateOverlay}
                 onDeleteOverlay={handleDeleteOverlay}
                 onOpenTrim={() => selectedClip && setTrimClipId(selectedClip.id)}

@@ -16,6 +16,9 @@ export function Inspector({
   onScale,
   onApplyToAll,
   onAddOverlay,
+  onAddEmoji,
+  onUploadOverlayImage,
+  overlayUploading,
   onUpdateOverlay,
   onDeleteOverlay,
   onOpenTrim,
@@ -32,6 +35,9 @@ export function Inspector({
   onScale: (scale: number) => void;
   onApplyToAll: () => void;
   onAddOverlay: (type: ROverlayType) => void;
+  onAddEmoji: (emoji: string) => void;
+  onUploadOverlayImage: (file: File) => void;
+  overlayUploading: boolean;
   onUpdateOverlay: (id: string, patch: Partial<Overlay>) => void;
   onDeleteOverlay: (id: string) => void;
   onOpenTrim: () => void;
@@ -159,6 +165,9 @@ export function Inspector({
       <OverlayEditor
         overlays={clip.overlays ?? []}
         onAdd={onAddOverlay}
+        onAddEmoji={onAddEmoji}
+        onUploadImage={onUploadOverlayImage}
+        uploading={overlayUploading}
         onUpdate={onUpdateOverlay}
         onDelete={onDeleteOverlay}
       />

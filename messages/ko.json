@@ -125,6 +125,9 @@
         "position": "위치",
         "size": "크기",
         "color": "색",
+        "anim": "등장 효과",
+        "uploadImage": "이미지 요소",
+        "uploading": "올리는 중…",
         "remove": "요소 삭제",
         "types": {
           "title": "제목",
@@ -133,7 +136,16 @@
           "arrow": "화살표",
           "star": "별",
           "heart": "하트",
-          "circle": "강조원"
+          "circle": "강조원",
+          "emoji": "이모지",
+          "image": "이미지"
+        },
+        "anims": {
+          "fade": "페이드",
+          "pop": "팝",
+          "slideUp": "위로",
+          "slideDown": "아래로",
+          "typing": "타이핑"
         },
         "defaults": {
           "title": "제목",
