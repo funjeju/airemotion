@@ -86,7 +86,7 @@ export function clipPlaybackSec(clip: Clip): number {
   return Math.max(0.1, end - start);
 }
 
-export const PHOTO_DEFAULT_SEC = 4;
+export const PHOTO_DEFAULT_SEC = 5;
 
 /**
  * AI 자동 배정 — 안전한 효과 풀에서 직전과 겹치지 않게 순환.

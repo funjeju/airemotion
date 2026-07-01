@@ -272,7 +272,8 @@
       "caption": "자막",
       "captionPlaceholder": "이 클립에 넣을 자막",
       "hint": "타이틀·자막은 선택한 클립에만 들어갑니다.",
-      "selectHint": "위 타임라인에서 클립을 선택하면 자막·타이틀을 넣을 수 있어요."
+      "selectHint": "위 타임라인에서 클립을 선택하면 자막·타이틀을 넣을 수 있어요.",
+      "dragTitleHint": "드래그해서 타이틀 위치를 옮기세요"
     },
     "actions": {
       "title": "타이틀",

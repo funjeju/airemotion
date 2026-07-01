@@ -369,7 +369,7 @@ export function OverlayEditor({
 }
 
 /** 클립 위에서 요소를 드래그해 자유 배치. */
-function OverlayPositioner({
+export function OverlayPositioner({
   clip,
   aspectRatio,
   overlays,

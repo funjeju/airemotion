@@ -18,10 +18,11 @@ export type TransitionSettings = {
   speed: TransitionSpeed;
 };
 
+// 디폴트 전환 — 느린 크로스페이드. 컷이 확 끊기지 않고 부드럽게 녹아든다.
 export const DEFAULT_TRANSITION: TransitionSettings = {
   type: "fade",
   direction: "from-left",
-  speed: "normal",
+  speed: "slow",
 };
 
 /** Firebase Clip[] + 자동 자막 + 전환 설정 → Remotion 컴포지션 props (미리보기·렌더 공용). */

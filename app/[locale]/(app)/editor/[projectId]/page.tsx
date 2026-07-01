@@ -324,6 +324,21 @@ export default function EditorPage({
     saveOverlays(selectedClip.id, next);
   }
 
+  // 단순 모드 타이틀 위치 드래그 — title 오버레이의 x/y만 갱신.
+  const selectedTitleOverlay =
+    selectedClip?.overlays?.find((o) => o.type === "title") ?? null;
+
+  function handleMoveTitle(x: number, y: number) {
+    if (!selectedClip || !selectedTitleOverlay) return;
+    const next = (selectedClip.overlays ?? []).map((o) =>
+      o.id === selectedTitleOverlay.id ? { ...o, x, y } : o,
+    );
+    setClips((cur) =>
+      cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays: next } : c)),
+    );
+    saveOverlays(selectedClip.id, next);
+  }
+
   // ── 스코프(대상 클립 ids) 배치 적용 ──
   function scheduleBatch(
     key: string,
@@ -893,6 +908,10 @@ export default function EditorPage({
               title={selectedTitle}
               onCaption={handleCaptionText}
               onTitle={handleSetTitle}
+              clip={selectedClip ?? null}
+              aspectRatio={aspectRatio}
+              titleOverlay={selectedTitleOverlay}
+              onMoveTitle={handleMoveTitle}
             />
           )}
 

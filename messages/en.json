@@ -272,7 +272,8 @@
       "caption": "Caption",
       "captionPlaceholder": "Caption for this clip",
       "hint": "Title & caption apply only to the selected clip.",
-      "selectHint": "Select a clip in the timeline above to add a caption or title."
+      "selectHint": "Select a clip in the timeline above to add a caption or title.",
+      "dragTitleHint": "Drag to move the title"
     },
     "actions": {
       "title": "Title",

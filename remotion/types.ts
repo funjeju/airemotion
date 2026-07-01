@@ -42,11 +42,14 @@ export const ANIMATION_PALETTE: AnimationKind[] = [
   "static",
 ];
 
-// AI 자동 배정 풀(무난한 효과만 — 연속 변주가 섞여도 안전).
+// AI 자동 배정 풀 — 디폴트로 "세련된" 시네마틱 켄번스.
+// 느린 줌 + 미세 팬 드리프트를 방향 번갈아가며(zoomIn↔zoomOut) 순환해
+// 단조롭지 않으면서도 고급스러운 슬라이드쇼 룩을 자동으로 만든다.
 export const ANIMATION_AUTO_POOL: AnimationKind[] = [
   "zoomIn",
+  "zoomPanRight",
   "zoomOut",
-  "panLeft",
+  "zoomPanLeft",
 ];
 
 export type RCaption = {
