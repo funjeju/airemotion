@@ -17,7 +17,30 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { getClientStorage, getDb } from "./client";
-import { ANIMATION_AUTO_POOL, type AnimationKind } from "@/remotion/types";
+import {
+  ANIMATION_AUTO_POOL,
+  type AnimationKind,
+  type ROverlay,
+  type ROverlayType,
+} from "@/remotion/types";
+
+export type Overlay = ROverlay;
+
+/** 새 오버레이 기본값(중앙, 악센트 색). 텍스트 기본값은 호출부에서 전달. */
+export function makeOverlay(type: ROverlayType, text: string): Overlay {
+  return {
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    type,
+    text,
+    x: 50,
+    y: type === "title" ? 22 : 50,
+    scale: 1,
+    color: "#5654d4",
+  };
+}
 
 export type ClipType = "image" | "video" | "audio";
 export type Animation = AnimationKind;
@@ -40,6 +63,7 @@ export type Clip = {
   animation: Animation | null;
   caption: { text: string; overrides: CaptionOverrides | null };
   scale?: number; // 화면 내 이미지 크기(0.5~1, 기본 1=꽉 채움)
+  overlays?: Overlay[]; // 말풍선·제목·스티커 등 요소
   // 영상 트림(초). 미설정 시 [0, durationSec] 전체.
   trimStart?: number;
   trimEnd?: number;
@@ -165,7 +189,13 @@ export async function updateClip(
   patch: Partial<
     Pick<
       Clip,
-      "caption" | "animation" | "durationSec" | "scale" | "trimStart" | "trimEnd"
+      | "caption"
+      | "animation"
+      | "durationSec"
+      | "scale"
+      | "overlays"
+      | "trimStart"
+      | "trimEnd"
     >
   >,
 ): Promise<void> {

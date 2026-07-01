@@ -47,6 +47,7 @@ export function clipsToGlideProps(
       position: c.caption.overrides?.position,
     },
     scale: c.scale,
+    overlays: c.overlays,
     trimStartSec: c.type === "video" ? (c.trimStart ?? 0) : undefined,
   }));
 

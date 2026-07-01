@@ -119,6 +119,28 @@
       "scale": "Image size",
       "applyToAll": "Apply to all photos",
       "editVideo": "Edit video (trim & cut)",
+      "overlay": {
+        "title": "Add elements (bubble, title, sticker)",
+        "textPlaceholder": "Enter text",
+        "position": "Position",
+        "size": "Size",
+        "color": "Color",
+        "remove": "Remove element",
+        "types": {
+          "title": "Title",
+          "speech": "Bubble",
+          "badge": "Badge",
+          "arrow": "Arrow",
+          "star": "Star",
+          "heart": "Heart",
+          "circle": "Circle"
+        },
+        "defaults": {
+          "title": "Title",
+          "speech": "Hello!",
+          "badge": "NEW"
+        }
+      },
       "autoCut": "Auto-cut",
       "autoCutting": "Analyzing…",
       "autoCutHint": "Finds scene changes and auto-splits the video into multiple clips.",

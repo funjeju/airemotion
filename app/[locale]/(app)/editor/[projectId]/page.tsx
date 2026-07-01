@@ -10,6 +10,7 @@ import {
   batchUpdateClips,
   deleteClip,
   listClips,
+  makeOverlay,
   reorderClips,
   splitVideoClip,
   updateClip,
@@ -17,6 +18,7 @@ import {
   type Animation,
   type CaptionOverrides,
   type Clip,
+  type Overlay,
 } from "@/lib/firebase/clips";
 import {
   deleteCaption,
@@ -38,11 +40,13 @@ import {
   TONE_PRESET,
   type Tone,
 } from "@/lib/remotion/tone";
-import type {
-  AspectRatio,
-  RTransitionDirection,
-  RTransitionType,
-  TransitionSpeed,
+import {
+  OVERLAY_HAS_TEXT,
+  type AspectRatio,
+  type ROverlayType,
+  type RTransitionDirection,
+  type RTransitionType,
+  type TransitionSpeed,
 } from "@/remotion/types";
 import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
@@ -230,6 +234,50 @@ export default function EditorPage({
         timers.delete(`scale-${id}`);
       }, 300),
     );
+  }
+
+  // ── 오버레이(요소) ──
+  function saveOverlays(clipId: string, overlays: Overlay[]) {
+    const timers = saveTimers.current;
+    if (timers.has(`ov-${clipId}`)) clearTimeout(timers.get(`ov-${clipId}`));
+    timers.set(
+      `ov-${clipId}`,
+      setTimeout(() => {
+        updateClip(projectId, clipId, { overlays });
+        timers.delete(`ov-${clipId}`);
+      }, 400),
+    );
+  }
+
+  function handleAddOverlay(type: ROverlayType) {
+    if (!selectedClip) return;
+    const text = OVERLAY_HAS_TEXT[type] ? t(`overlay.defaults.${type}`) : "";
+    const overlay = makeOverlay(type, text);
+    const overlays = [...(selectedClip.overlays ?? []), overlay];
+    setClips((cur) =>
+      cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays } : c)),
+    );
+    updateClip(projectId, selectedClip.id, { overlays });
+  }
+
+  function handleUpdateOverlay(id: string, patch: Partial<Overlay>) {
+    if (!selectedClip) return;
+    const overlays = (selectedClip.overlays ?? []).map((o) =>
+      o.id === id ? { ...o, ...patch } : o,
+    );
+    setClips((cur) =>
+      cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays } : c)),
+    );
+    saveOverlays(selectedClip.id, overlays);
+  }
+
+  function handleDeleteOverlay(id: string) {
+    if (!selectedClip) return;
+    const overlays = (selectedClip.overlays ?? []).filter((o) => o.id !== id);
+    setClips((cur) =>
+      cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays } : c)),
+    );
+    updateClip(projectId, selectedClip.id, { overlays });
   }
 
   /** 선택 사진의 효과·길이·크기를 모든 사진 클립에 일괄 적용. */
@@ -617,6 +665,9 @@ export default function EditorPage({
                 onDuration={handleDuration}
                 onScale={handleScale}
                 onApplyToAll={handleApplyToAll}
+                onAddOverlay={handleAddOverlay}
+                onUpdateOverlay={handleUpdateOverlay}
+                onDeleteOverlay={handleDeleteOverlay}
                 onOpenTrim={() => selectedClip && setTrimClipId(selectedClip.id)}
                 onAutoCut={() => selectedClip && handleAutoCut(selectedClip)}
                 autoCutting={autoCutting}

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type { Animation, CaptionOverrides, Clip } from "@/lib/firebase/clips";
-import { ANIMATION_PALETTE } from "@/remotion/types";
+import type { Animation, CaptionOverrides, Clip, Overlay } from "@/lib/firebase/clips";
+import { ANIMATION_PALETTE, type ROverlayType } from "@/remotion/types";
 import { EffectPreview } from "./sample-previews";
+import { OverlayEditor } from "./overlay-editor";
 
 export function Inspector({
   clip,
@@ -14,6 +15,9 @@ export function Inspector({
   onDuration,
   onScale,
   onApplyToAll,
+  onAddOverlay,
+  onUpdateOverlay,
+  onDeleteOverlay,
   onOpenTrim,
   onAutoCut,
   autoCutting,
@@ -27,6 +31,9 @@ export function Inspector({
   onDuration: (sec: number) => void;
   onScale: (scale: number) => void;
   onApplyToAll: () => void;
+  onAddOverlay: (type: ROverlayType) => void;
+  onUpdateOverlay: (id: string, patch: Partial<Overlay>) => void;
+  onDeleteOverlay: (id: string) => void;
   onOpenTrim: () => void;
   onAutoCut: () => void;
   autoCutting: boolean;
@@ -147,6 +154,14 @@ export function Inspector({
           ⎘ {t("applyToAll")}
         </button>
       )}
+
+      {/* 요소(말풍선·제목·스티커) 오버레이 */}
+      <OverlayEditor
+        overlays={clip.overlays ?? []}
+        onAdd={onAddOverlay}
+        onUpdate={onUpdateOverlay}
+        onDelete={onDeleteOverlay}
+      />
 
       {/* 영상 편집(트림/컷) + 자동 컷 */}
       {clip.type === "video" && (

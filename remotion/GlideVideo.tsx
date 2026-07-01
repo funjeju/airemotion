@@ -22,6 +22,7 @@ import { none } from "@remotion/transitions/none";
 import {
   type GlideVideoProps,
   type RClip,
+  type ROverlay,
   type RSubtitle,
   type RTransitionDirection,
   type RTransitionType,
@@ -92,8 +93,184 @@ function ClipView({ clip }: { clip: RClip }) {
         )}
       </div>
       {clip.caption.text ? <CaptionView caption={clip.caption} /> : null}
+      {clip.overlays && clip.overlays.length > 0 ? (
+        <OverlayLayer overlays={clip.overlays} />
+      ) : null}
     </AbsoluteFill>
   );
+}
+
+/** 오버레이(요소) — 말풍선·제목·스티커. 등장 시 페이드+상승. */
+function OverlayLayer({ overlays }: { overlays: ROverlay[] }) {
+  const frame = useCurrentFrame();
+  const { fps, height } = useVideoConfig();
+  const appear = fps * 0.4;
+  const opacity = interpolate(frame, [0, appear], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const rise = interpolate(frame, [0, appear], [height * 0.02, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill>
+      {overlays.map((o) => (
+        <div
+          key={o.id}
+          style={{
+            position: "absolute",
+            left: `${o.x}%`,
+            top: `${o.y}%`,
+            transform: `translate(-50%, calc(-50% + ${rise}px)) scale(${o.scale})`,
+            opacity,
+          }}
+        >
+          <OverlayShape overlay={o} height={height} />
+        </div>
+      ))}
+    </AbsoluteFill>
+  );
+}
+
+function OverlayShape({
+  overlay: o,
+  height,
+}: {
+  overlay: ROverlay;
+  height: number;
+}) {
+  const u = height * 0.09; // 스티커 기본 크기 단위
+  switch (o.type) {
+    case "title":
+      return (
+        <span
+          style={{
+            display: "inline-block",
+            backgroundColor: o.color,
+            color: "#ffffff",
+            fontSize: height * 0.06,
+            fontWeight: 800,
+            fontFamily: "'Space Grotesk', Inter, sans-serif",
+            padding: "0.1em 0.4em",
+            borderRadius: 10,
+            lineHeight: 1.15,
+            whiteSpace: "pre-wrap",
+            textAlign: "center",
+            boxShadow: "0 6px 24px rgba(0,0,0,0.25)",
+          }}
+        >
+          {o.text || "제목"}
+        </span>
+      );
+    case "speech":
+      return (
+        <div style={{ position: "relative" }}>
+          <span
+            style={{
+              display: "inline-block",
+              backgroundColor: "#ffffff",
+              color: "#1a1d21",
+              fontSize: height * 0.034,
+              fontWeight: 600,
+              fontFamily: "Inter, sans-serif",
+              padding: "0.5em 0.8em",
+              borderRadius: 18,
+              maxWidth: height * 0.9,
+              lineHeight: 1.3,
+              whiteSpace: "pre-wrap",
+              textAlign: "center",
+              boxShadow: "0 6px 24px rgba(0,0,0,0.2)",
+            }}
+          >
+            {o.text || "말풍선"}
+          </span>
+          <span
+            style={{
+              position: "absolute",
+              bottom: -height * 0.018,
+              left: "25%",
+              width: 0,
+              height: 0,
+              borderLeft: `${height * 0.018}px solid transparent`,
+              borderRight: `${height * 0.018}px solid transparent`,
+              borderTop: `${height * 0.02}px solid #ffffff`,
+            }}
+          />
+        </div>
+      );
+    case "badge":
+      return (
+        <span
+          style={{
+            display: "inline-block",
+            backgroundColor: o.color,
+            color: "#ffffff",
+            fontSize: height * 0.03,
+            fontWeight: 800,
+            letterSpacing: "0.05em",
+            fontFamily: "Inter, sans-serif",
+            padding: "0.25em 0.7em",
+            borderRadius: 999,
+            textTransform: "uppercase",
+          }}
+        >
+          {o.text || "NEW"}
+        </span>
+      );
+    case "arrow":
+      return (
+        <svg width={u * 1.6} height={u} viewBox="0 0 80 50">
+          <path
+            d="M5 25 H60 M45 10 L65 25 L45 40"
+            stroke={o.color}
+            strokeWidth={8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+        </svg>
+      );
+    case "star":
+      return (
+        <svg width={u} height={u} viewBox="0 0 50 50">
+          <path
+            d="M25 3 L31 19 L48 19 L34 30 L39 47 L25 37 L11 47 L16 30 L2 19 L19 19 Z"
+            fill={o.color}
+            stroke="#fff"
+            strokeWidth={2}
+          />
+        </svg>
+      );
+    case "heart":
+      return (
+        <svg width={u} height={u} viewBox="0 0 50 50">
+          <path
+            d="M25 44 C10 32 3 24 3 16 C3 9 9 4 15 4 C19 4 23 6 25 10 C27 6 31 4 35 4 C41 4 47 9 47 16 C47 24 40 32 25 44 Z"
+            fill={o.color}
+            stroke="#fff"
+            strokeWidth={2}
+          />
+        </svg>
+      );
+    case "circle":
+      return (
+        <svg width={u * 1.6} height={u * 1.2} viewBox="0 0 80 60">
+          <ellipse
+            cx={40}
+            cy={30}
+            rx={35}
+            ry={25}
+            fill="none"
+            stroke={o.color}
+            strokeWidth={6}
+          />
+        </svg>
+      );
+    default:
+      return null;
+  }
 }
 
 function CaptionView({ caption }: { caption: RClip["caption"] }) {

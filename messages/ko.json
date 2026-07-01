@@ -119,6 +119,28 @@
       "scale": "이미지 크기",
       "applyToAll": "모든 사진에 이 설정 적용",
       "editVideo": "영상 편집 (시작·끝·컷)",
+      "overlay": {
+        "title": "요소 추가 (말풍선·제목·스티커)",
+        "textPlaceholder": "텍스트 입력",
+        "position": "위치",
+        "size": "크기",
+        "color": "색",
+        "remove": "요소 삭제",
+        "types": {
+          "title": "제목",
+          "speech": "말풍선",
+          "badge": "배지",
+          "arrow": "화살표",
+          "star": "별",
+          "heart": "하트",
+          "circle": "강조원"
+        },
+        "defaults": {
+          "title": "제목",
+          "speech": "말풍선",
+          "badge": "NEW"
+        }
+      },
       "autoCut": "자동 컷",
       "autoCutting": "분석 중…",
       "autoCutHint": "장면이 바뀌는 지점을 찾아 영상을 여러 클립으로 자동 분할합니다.",

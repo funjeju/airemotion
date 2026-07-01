@@ -57,6 +57,46 @@ export type RCaption = {
   position?: "top" | "center" | "bottom";
 };
 
+// 오버레이(요소) — 말풍선·제목 템플릿·스티커
+export type ROverlayType =
+  | "speech"
+  | "title"
+  | "badge"
+  | "arrow"
+  | "star"
+  | "heart"
+  | "circle";
+
+export const OVERLAY_TYPES: ROverlayType[] = [
+  "title",
+  "speech",
+  "badge",
+  "arrow",
+  "star",
+  "heart",
+  "circle",
+];
+
+export const OVERLAY_HAS_TEXT: Record<ROverlayType, boolean> = {
+  speech: true,
+  title: true,
+  badge: true,
+  arrow: false,
+  star: false,
+  heart: false,
+  circle: false,
+};
+
+export type ROverlay = {
+  id: string;
+  type: ROverlayType;
+  text: string; // 텍스트형만 사용
+  x: number; // 0~100 (%)
+  y: number; // 0~100 (%)
+  scale: number; // 0.5~2
+  color: string;
+};
+
 export type RClip = {
   type: "image" | "video";
   src: string;
@@ -64,6 +104,7 @@ export type RClip = {
   animation: RAnimation;
   caption: RCaption;
   scale?: number; // 화면 내 이미지 크기(0.5~1, 기본 1)
+  overlays?: ROverlay[];
   // 영상 트림: 소스에서 잘라낼 시작 지점(초). durationInFrames가 잘린 구간 길이.
   trimStartSec?: number;
 };
