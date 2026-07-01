@@ -13,6 +13,8 @@ import { OverlayEditor } from "./overlay-editor";
 
 export function Inspector({
   clip,
+  titleText,
+  onTitle,
   onCaptionText,
   onOverrides,
   onAnimation,
@@ -35,6 +37,8 @@ export function Inspector({
 }: {
   clip: Clip | null;
   aspectRatio: AspectRatio;
+  titleText: string;
+  onTitle: (text: string) => void;
   onCaptionText: (text: string) => void;
   onOverrides: (patch: CaptionOverrides | null) => void;
   onAnimation: (a: Animation) => void;
@@ -75,6 +79,18 @@ export function Inspector({
       <h2 className="font-display text-base font-medium text-ink">
         {t("title")}
       </h2>
+
+      {/* 제목(타이틀) — 이 클립에 큰 제목 오버레이 */}
+      <label className="mt-4 block text-sm font-medium text-ink">
+        {t("titleLabel")}
+      </label>
+      <input
+        type="text"
+        value={titleText}
+        onChange={(e) => onTitle(e.target.value)}
+        placeholder={t("titlePlaceholder")}
+        className="mt-1.5 w-full rounded-[var(--radius)] border border-line bg-bg px-3 py-2 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      />
 
       {/* 자막 텍스트 */}
       <label className="mt-4 block text-sm font-medium text-ink">

@@ -124,7 +124,9 @@
       "autoCut": "자동 컷",
       "autoCutting": "분석 중…",
       "autoCutHint": "장면이 바뀌는 지점을 찾아 영상을 여러 클립으로 자동 분할합니다.",
-      "delete": "클립 삭제"
+      "delete": "클립 삭제",
+      "titleLabel": "제목(타이틀)",
+      "titlePlaceholder": "이 클립에 넣을 큰 제목"
     },
     "autocut": {
       "none": "나눌 만한 장면 변화를 찾지 못했어요.",
