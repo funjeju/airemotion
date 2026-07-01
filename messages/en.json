@@ -69,6 +69,13 @@
       "video": "Video",
       "audio": "Music"
     },
+    "music": {
+      "title": "Background music",
+      "track": "Track",
+      "inUse": "In use",
+      "remove": "Remove music",
+      "firstOnly": "If you add several, the first track is used as background music."
+    },
     "tone": {
       "title": "Video mood",
       "note": "Describe the mood you want — effects, transitions, and timing adjust automatically.",

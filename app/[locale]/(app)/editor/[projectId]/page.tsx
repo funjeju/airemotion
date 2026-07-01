@@ -51,6 +51,7 @@ import { ProjectTone } from "@/components/editor/project-tone";
 import { AspectControl } from "@/components/editor/aspect-control";
 import { TransitionControl } from "@/components/editor/transition-control";
 import { CaptionReview } from "@/components/editor/caption-review";
+import { MusicTrack } from "@/components/editor/music-track";
 import { VideoTrimModal } from "@/components/editor/video-trim-modal";
 import { RemotionPreview } from "@/components/editor/remotion-preview";
 
@@ -164,7 +165,10 @@ export default function EditorPage({
 
   function handleReorder(ids: string[]) {
     const map = new Map(clips.map((c) => [c.id, c]));
-    setClips(ids.map((id, i) => ({ ...map.get(id)!, order: i })));
+    const reordered = ids.map((id, i) => ({ ...map.get(id)!, order: i }));
+    // 오디오는 필름스트립에 없으니 상태에서 보존.
+    const audios = clips.filter((c) => c.type === "audio");
+    setClips([...reordered, ...audios]);
     reorderClips(projectId, ids);
   }
 
@@ -246,15 +250,20 @@ export default function EditorPage({
     if (updates.length > 0) batchUpdateClips(projectId, updates);
   }
 
-  async function handleDelete() {
-    if (!selectedClip) return;
-    const target = selectedClip;
+  async function handleDeleteClip(target: Clip) {
     setClips((cur) => cur.filter((c) => c.id !== target.id));
-    setSelectedId(null);
+    if (selectedId === target.id) setSelectedId(null);
     await deleteClip(projectId, target);
   }
 
+  async function handleDelete() {
+    if (!selectedClip) return;
+    await handleDeleteClip(selectedClip);
+  }
+
   const hasVisual = clips.some((c) => c.type !== "audio");
+  const visualClips = clips.filter((c) => c.type !== "audio");
+  const audioClips = clips.filter((c) => c.type === "audio");
 
   async function handleRender() {
     const current = getClientAuth().currentUser;
@@ -554,7 +563,7 @@ export default function EditorPage({
 
           <section className="space-y-3">
             <Filmstrip
-              clips={clips}
+              clips={visualClips}
               selectedId={selectedId}
               onSelect={setSelectedId}
               onReorder={handleReorder}
@@ -565,6 +574,9 @@ export default function EditorPage({
               compact
             />
           </section>
+
+          {/* 배경음악 목록 */}
+          <MusicTrack audioClips={audioClips} onDelete={handleDeleteClip} />
 
           {/* ── 복잡 모드 전용: 디테일 편집 ── */}
           {mode === "advanced" && (
