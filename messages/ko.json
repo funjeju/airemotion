@@ -41,6 +41,10 @@
     "loading": "불러오는 중…",
     "untitled": "제목 없는 프로젝트",
     "rename": "이름 변경",
+    "delete": "삭제",
+    "deleting": "삭제 중…",
+    "confirmDelete": "삭제할까요?",
+    "cancel": "취소",
     "emptyTitle": "아직 프로젝트가 없어요.",
     "emptyDesc": "새 프로젝트를 만들어 사진을 올려 시작하세요.",
     "status": {

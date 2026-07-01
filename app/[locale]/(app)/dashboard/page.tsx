@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/auth-context";
+import { getClientAuth } from "@/lib/firebase/client";
 import {
   createProject,
   listProjects,
@@ -27,6 +28,8 @@ export default function DashboardPage() {
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!user) return;
@@ -62,6 +65,25 @@ export default function DashboardPage() {
     );
     setEditingId(null);
     await updateProjectSettings(id, { title });
+  }
+
+  async function handleDelete(id: string) {
+    const current = getClientAuth().currentUser;
+    if (!current) return;
+    setDeletingId(id);
+    try {
+      const token = await current.getIdToken();
+      const res = await fetch(`/api/project/${id}`, {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setProjects((cur) => cur.filter((p) => p.id !== id));
+      }
+    } finally {
+      setDeletingId(null);
+      setConfirmDeleteId(null);
+    }
   }
 
   return (
@@ -116,24 +138,57 @@ export default function DashboardPage() {
                   >
                     {p.title}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => startRename(p)}
-                    aria-label={t("rename")}
-                    title={t("rename")}
-                    className="shrink-0 text-muted opacity-0 transition hover:text-accent group-hover:opacity-100"
-                  >
-                    ✎
-                  </button>
+                  <div className="flex shrink-0 items-center gap-2 opacity-0 transition group-hover:opacity-100">
+                    <button
+                      type="button"
+                      onClick={() => startRename(p)}
+                      aria-label={t("rename")}
+                      title={t("rename")}
+                      className="text-muted transition hover:text-accent"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDeleteId(p.id)}
+                      aria-label={t("delete")}
+                      title={t("delete")}
+                      className="text-muted transition hover:text-render"
+                    >
+                      🗑
+                    </button>
+                  </div>
                 </div>
               )}
-              <button
-                type="button"
-                onClick={() => router.push(`/editor/${p.id}`)}
-                className="mt-2 block font-mono text-xs uppercase tracking-wide text-muted transition hover:text-accent"
-              >
-                {t(`status.${STATUS_KEY[p.status]}`)}
-              </button>
+
+              {confirmDeleteId === p.id ? (
+                <div className="mt-3 flex items-center gap-2">
+                  <span className="text-sm text-ink">{t("confirmDelete")}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(p.id)}
+                    disabled={deletingId === p.id}
+                    className="rounded-[var(--radius)] bg-render/90 px-2.5 py-1 text-xs font-medium text-white transition hover:opacity-90 disabled:opacity-60"
+                  >
+                    {deletingId === p.id ? t("deleting") : t("delete")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDeleteId(null)}
+                    className="rounded-[var(--radius)] border border-line px-2.5 py-1 text-xs text-ink transition hover:border-accent"
+                  >
+                    {t("cancel")}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => router.push(`/editor/${p.id}`)}
+                  className="mt-2 block font-mono text-xs uppercase tracking-wide text-muted transition hover:text-accent"
+                >
+                  {t(`status.${STATUS_KEY[p.status]}`)}
+                </button>
+              )}
             </li>
           ))}
         </ul>

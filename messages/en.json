@@ -41,6 +41,10 @@
     "loading": "Loading…",
     "untitled": "Untitled project",
     "rename": "Rename",
+    "delete": "Delete",
+    "deleting": "Deleting…",
+    "confirmDelete": "Delete this?",
+    "cancel": "Cancel",
     "emptyTitle": "No projects yet.",
     "emptyDesc": "Create a new project and upload photos to begin.",
     "status": {
