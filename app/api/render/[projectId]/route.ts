@@ -6,6 +6,7 @@ import { unlink } from "node:fs/promises";
 import { NextResponse } from "next/server";
 import { adminDb, adminStorage, verifyIdToken } from "@/lib/firebase/admin";
 import { renderProjectVideo } from "@/lib/remotion/render";
+import { lambdaConfigured, renderOnLambda } from "@/lib/remotion/lambda-render";
 import {
   canUseProvider,
   resolveRenderProvider,
@@ -41,28 +42,7 @@ export async function POST(
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  // 2.5) 렌더 공급자 + 플랜 게이팅
   const provider = resolveRenderProvider();
-  // Vercel 등 서버리스에선 로컬 렌더(헤드리스 Chrome) 불가 → 깔끔히 안내.
-  if (provider === "local" && process.env.VERCEL) {
-    return NextResponse.json(
-      { error: "local-render-unavailable" },
-      { status: 501 },
-    );
-  }
-  if (provider === "lambda") {
-    const userSnap = await adminDb().collection("users").doc(uid).get();
-    const plan = (userSnap.data()?.plan ?? "free") as UserPlan;
-    if (!canUseProvider(provider, plan)) {
-      return NextResponse.json({ error: "plan-required" }, { status: 402 });
-    }
-    // AWS Lambda 경로는 아직 미구성 — 준비되면 여기서 renderMediaOnLambda 호출.
-    return NextResponse.json(
-      { error: "cloud-render-unavailable" },
-      { status: 501 },
-    );
-  }
-  // provider === "local": 셀프호스트/로컬 머신에서 렌더(무료). 아래 진행.
 
   // 3) 클립 로드 → 컴포지션 props
   const clipsSnap = await projectRef.collection("clips").get();
@@ -87,6 +67,46 @@ export async function POST(
   );
   if (props.clips.length === 0) {
     return NextResponse.json({ error: "no-clips" }, { status: 400 });
+  }
+
+  // 3.5) 렌더 공급자 분기
+  if (provider === "lambda") {
+    // 클라우드 렌더는 Pro 플랜 필요
+    const userSnap = await adminDb().collection("users").doc(uid).get();
+    const plan = (userSnap.data()?.plan ?? "free") as UserPlan;
+    if (!canUseProvider(provider, plan)) {
+      return NextResponse.json({ error: "plan-required" }, { status: 402 });
+    }
+    if (!lambdaConfigured()) {
+      return NextResponse.json(
+        { error: "cloud-render-unavailable" },
+        { status: 501 },
+      );
+    }
+    try {
+      await projectRef.update({ status: "rendering", updatedAt: new Date() });
+      const url = await renderOnLambda(props);
+      await projectRef.update({
+        status: "done",
+        outputUrl: url,
+        updatedAt: new Date(),
+      });
+      return NextResponse.json({ url });
+    } catch (e) {
+      console.error("[render] lambda failed:", e);
+      await projectRef
+        .update({ status: "error", updatedAt: new Date() })
+        .catch(() => {});
+      return NextResponse.json({ error: "render-failed" }, { status: 500 });
+    }
+  }
+
+  // provider === "local": Vercel 등 서버리스에선 헤드리스 Chrome 렌더 불가.
+  if (process.env.VERCEL) {
+    return NextResponse.json(
+      { error: "local-render-unavailable" },
+      { status: 501 },
+    );
   }
 
   const tmpPath = path.join(os.tmpdir(), `glide-${projectId}-${randomUUID()}.mp4`);
