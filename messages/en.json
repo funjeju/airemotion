@@ -121,52 +121,6 @@
       "scale": "Image size",
       "applyToAll": "Apply to all photos",
       "editVideo": "Edit video (trim & cut)",
-      "overlay": {
-        "title": "Add elements (bubble, title, sticker)",
-        "textPlaceholder": "Enter text",
-        "position": "Position",
-        "size": "Size",
-        "color": "Color",
-        "anim": "Entrance",
-        "exit": "Exit",
-        "weight": "Weight",
-        "outline": "Outline",
-        "dragHint": "Drag elements to reposition",
-        "uploadImage": "Image element",
-        "uploading": "Uploading…",
-        "applyToAllClips": "Apply element to all clips",
-        "remove": "Remove element",
-        "types": {
-          "title": "Title",
-          "speech": "Bubble",
-          "badge": "Badge",
-          "arrow": "Arrow",
-          "star": "Star",
-          "heart": "Heart",
-          "circle": "Circle",
-          "emoji": "Emoji",
-          "image": "Image"
-        },
-        "anims": {
-          "fade": "Fade",
-          "pop": "Pop",
-          "slideUp": "Up",
-          "slideDown": "Down",
-          "typing": "Typing"
-        },
-        "exits": {
-          "none": "None",
-          "fade": "Fade",
-          "pop": "Pop",
-          "slideUp": "Up",
-          "slideDown": "Down"
-        },
-        "defaults": {
-          "title": "Title",
-          "speech": "Hello!",
-          "badge": "NEW"
-        }
-      },
       "autoCut": "Auto-cut",
       "autoCutting": "Analyzing…",
       "autoCutHint": "Finds scene changes and auto-splits the video into multiple clips.",
@@ -259,6 +213,52 @@
       "end": "End (s)",
       "delete": "Delete caption",
       "error": "Transcription failed. Please try again."
+    },
+    "overlay": {
+      "title": "Add elements (bubble, title, sticker)",
+      "textPlaceholder": "Enter text",
+      "position": "Position",
+      "size": "Size",
+      "color": "Color",
+      "anim": "Entrance",
+      "exit": "Exit",
+      "weight": "Weight",
+      "outline": "Outline",
+      "dragHint": "Drag elements to reposition",
+      "uploadImage": "Image element",
+      "uploading": "Uploading…",
+      "applyToAllClips": "Apply element to all clips",
+      "remove": "Remove element",
+      "types": {
+        "title": "Title",
+        "speech": "Bubble",
+        "badge": "Badge",
+        "arrow": "Arrow",
+        "star": "Star",
+        "heart": "Heart",
+        "circle": "Circle",
+        "emoji": "Emoji",
+        "image": "Image"
+      },
+      "anims": {
+        "fade": "Fade",
+        "pop": "Pop",
+        "slideUp": "Up",
+        "slideDown": "Down",
+        "typing": "Typing"
+      },
+      "exits": {
+        "none": "None",
+        "fade": "Fade",
+        "pop": "Pop",
+        "slideUp": "Up",
+        "slideDown": "Down"
+      },
+      "defaults": {
+        "title": "Title",
+        "speech": "Hello!",
+        "badge": "NEW"
+      }
     }
   },
   "common": {
