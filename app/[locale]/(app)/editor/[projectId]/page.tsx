@@ -307,6 +307,32 @@ export default function EditorPage({
     }
   }
 
+  /** 선택 클립의 요소(오버레이)를 모든 시각 클립에 복사(새 id 부여). */
+  function handleApplyOverlaysToAll() {
+    if (!selectedClip) return;
+    const source = selectedClip.overlays ?? [];
+    const clone = () =>
+      source.map((o) => ({
+        ...o,
+        id:
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      }));
+    const targets = clips.filter((c) => c.type !== "audio");
+    setClips((cur) =>
+      cur.map((c) =>
+        c.type !== "audio" && c.id !== selectedClip.id
+          ? { ...c, overlays: clone() }
+          : c,
+      ),
+    );
+    const updates = targets
+      .filter((c) => c.id !== selectedClip.id)
+      .map((c) => ({ id: c.id, overlays: clone() }));
+    if (updates.length > 0) batchUpdateClips(projectId, updates);
+  }
+
   /** 선택 사진의 효과·길이·크기를 모든 사진 클립에 일괄 적용. */
   function handleApplyToAll() {
     if (!selectedClip || selectedClip.type !== "image") return;
@@ -699,6 +725,7 @@ export default function EditorPage({
                 overlayUploading={overlayUploading}
                 onUpdateOverlay={handleUpdateOverlay}
                 onDeleteOverlay={handleDeleteOverlay}
+                onApplyOverlaysToAll={handleApplyOverlaysToAll}
                 onOpenTrim={() => selectedClip && setTrimClipId(selectedClip.id)}
                 onAutoCut={() => selectedClip && handleAutoCut(selectedClip)}
                 autoCutting={autoCutting}

@@ -95,17 +95,26 @@ function ClipView({ clip }: { clip: RClip }) {
       </div>
       {clip.caption.text ? <CaptionView caption={clip.caption} /> : null}
       {clip.overlays && clip.overlays.length > 0 ? (
-        <OverlayLayer overlays={clip.overlays} />
+        <OverlayLayer
+          overlays={clip.overlays}
+          clipDuration={clip.durationInFrames}
+        />
       ) : null}
     </AbsoluteFill>
   );
 }
 
 /** 오버레이(요소) — 말풍선·제목·스티커·이모지·이미지. 등장 애니메이션 프리셋. */
-function OverlayLayer({ overlays }: { overlays: ROverlay[] }) {
+function OverlayLayer({
+  overlays,
+  clipDuration,
+}: {
+  overlays: ROverlay[];
+  clipDuration: number;
+}) {
   const frame = useCurrentFrame();
   const { fps, height } = useVideoConfig();
-  const appear = fps * 0.4;
+  const appear = Math.min(fps * 0.4, clipDuration * 0.3);
 
   return (
     <AbsoluteFill>
@@ -154,6 +163,20 @@ function OverlayLayer({ overlays }: { overlays: ROverlay[] }) {
             break; // fade
         }
 
+        // 퇴장 애니메이션(클립 끝 부분)
+        if (o.exit && o.exit !== "none") {
+          const ep = interpolate(
+            frame,
+            [clipDuration - appear, clipDuration],
+            [0, 1],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+          );
+          opacity *= 1 - ep;
+          if (o.exit === "pop") scaleMul *= 1 - 0.4 * ep;
+          if (o.exit === "slideUp") ty -= ep * height * 0.06;
+          if (o.exit === "slideDown") ty += ep * height * 0.06;
+        }
+
         return (
           <div
             key={o.id}
@@ -181,6 +204,12 @@ function OverlayShape({
   height: number;
 }) {
   const u = height * 0.09; // 스티커 기본 크기 단위
+  const outline = o.outline
+    ? {
+        WebkitTextStroke: `${Math.max(1, height * 0.004)}px #111`,
+        paintOrder: "stroke" as const,
+      }
+    : {};
   switch (o.type) {
     case "title":
       return (
@@ -190,7 +219,8 @@ function OverlayShape({
             backgroundColor: o.color,
             color: "#ffffff",
             fontSize: height * 0.06,
-            fontWeight: 800,
+            fontWeight: o.fontWeight ?? 800,
+            ...outline,
             fontFamily: "'Space Grotesk', Inter, sans-serif",
             padding: "0.1em 0.4em",
             borderRadius: 10,
@@ -212,7 +242,8 @@ function OverlayShape({
               backgroundColor: "#ffffff",
               color: "#1a1d21",
               fontSize: height * 0.034,
-              fontWeight: 600,
+              fontWeight: o.fontWeight ?? 600,
+              ...outline,
               fontFamily: "Inter, sans-serif",
               padding: "0.5em 0.8em",
               borderRadius: 18,
@@ -247,7 +278,8 @@ function OverlayShape({
             backgroundColor: o.color,
             color: "#ffffff",
             fontSize: height * 0.03,
-            fontWeight: 800,
+            fontWeight: o.fontWeight ?? 800,
+            ...outline,
             letterSpacing: "0.05em",
             fontFamily: "Inter, sans-serif",
             padding: "0.25em 0.7em",

@@ -5,11 +5,15 @@ import { useTranslations } from "next-intl";
 import type { Clip, Overlay } from "@/lib/firebase/clips";
 import {
   OVERLAY_ANIMS,
+  OVERLAY_EXITS,
   OVERLAY_HAS_TEXT,
   OVERLAY_TYPES,
   type AspectRatio,
   type ROverlayType,
 } from "@/remotion/types";
+
+const WEIGHTS = [500, 700, 900];
+const WEIGHT_LABEL: Record<number, string> = { 500: "보통", 700: "굵게", 900: "진하게" };
 
 const ICON: Record<ROverlayType, string> = {
   title: "T",
@@ -42,6 +46,7 @@ export function OverlayEditor({
   uploading,
   onUpdate,
   onDelete,
+  onApplyToAllClips,
 }: {
   clip: Clip;
   aspectRatio: AspectRatio;
@@ -52,6 +57,7 @@ export function OverlayEditor({
   uploading: boolean;
   onUpdate: (id: string, patch: Partial<Overlay>) => void;
   onDelete: (id: string) => void;
+  onApplyToAllClips: () => void;
 }) {
   const t = useTranslations("editor.overlay");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -179,6 +185,67 @@ export function OverlayEditor({
                   </div>
                 </div>
 
+                {/* 퇴장 애니메이션 */}
+                <div className="mt-2">
+                  <span className="block text-[11px] text-muted">
+                    {t("exit")}
+                  </span>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {OVERLAY_EXITS.map((a) => (
+                      <button
+                        key={a}
+                        type="button"
+                        onClick={() => onUpdate(o.id, { exit: a })}
+                        className={`rounded-md border px-2 py-0.5 text-xs transition ${
+                          (o.exit ?? "none") === a
+                            ? "border-accent bg-accent-weak text-accent"
+                            : "border-line text-ink hover:border-accent"
+                        }`}
+                      >
+                        {t(`exits.${a}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 텍스트 옵션(굵기·외곽선) */}
+                {OVERLAY_HAS_TEXT[o.type] && o.type !== "emoji" ? (
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
+                    <div>
+                      <span className="block text-[11px] text-muted">
+                        {t("weight")}
+                      </span>
+                      <div className="mt-1 flex gap-1.5">
+                        {WEIGHTS.map((w) => (
+                          <button
+                            key={w}
+                            type="button"
+                            onClick={() => onUpdate(o.id, { fontWeight: w })}
+                            className={`rounded-md border px-2 py-0.5 text-xs transition ${
+                              (o.fontWeight ?? 700) === w
+                                ? "border-accent bg-accent-weak text-accent"
+                                : "border-line text-ink hover:border-accent"
+                            }`}
+                          >
+                            {WEIGHT_LABEL[w]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-1.5 text-[11px] text-muted">
+                      <input
+                        type="checkbox"
+                        checked={!!o.outline}
+                        onChange={(e) =>
+                          onUpdate(o.id, { outline: e.target.checked })
+                        }
+                        className="accent-[var(--accent)]"
+                      />
+                      {t("outline")}
+                    </label>
+                  </div>
+                ) : null}
+
                 <div className="mt-2 flex flex-wrap items-center gap-4">
                   {/* 위치 3x3 */}
                   <div>
@@ -243,6 +310,16 @@ export function OverlayEditor({
             );
           })}
         </ul>
+      ) : null}
+
+      {overlays.length > 0 ? (
+        <button
+          type="button"
+          onClick={onApplyToAllClips}
+          className="mt-3 inline-flex items-center gap-2 rounded-[var(--radius)] border border-accent px-4 py-2 text-sm font-medium text-accent transition hover:bg-accent-weak"
+        >
+          ⎘ {t("applyToAllClips")}
+        </button>
       ) : null}
     </div>
   );

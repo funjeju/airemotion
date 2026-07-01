@@ -126,9 +126,13 @@
         "size": "크기",
         "color": "색",
         "anim": "등장 효과",
+        "exit": "퇴장 효과",
+        "weight": "굵기",
+        "outline": "외곽선",
         "dragHint": "요소를 끌어서 위치를 옮기세요",
         "uploadImage": "이미지 요소",
         "uploading": "올리는 중…",
+        "applyToAllClips": "모든 클립에 이 요소 적용",
         "remove": "요소 삭제",
         "types": {
           "title": "제목",
@@ -147,6 +151,13 @@
           "slideUp": "위로",
           "slideDown": "아래로",
           "typing": "타이핑"
+        },
+        "exits": {
+          "none": "없음",
+          "fade": "페이드",
+          "pop": "팝",
+          "slideUp": "위로",
+          "slideDown": "아래로"
         },
         "defaults": {
           "title": "제목",

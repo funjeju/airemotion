@@ -25,6 +25,7 @@ export function Inspector({
   overlayUploading,
   onUpdateOverlay,
   onDeleteOverlay,
+  onApplyOverlaysToAll,
   onOpenTrim,
   onAutoCut,
   autoCutting,
@@ -46,6 +47,7 @@ export function Inspector({
   overlayUploading: boolean;
   onUpdateOverlay: (id: string, patch: Partial<Overlay>) => void;
   onDeleteOverlay: (id: string) => void;
+  onApplyOverlaysToAll: () => void;
   onOpenTrim: () => void;
   onAutoCut: () => void;
   autoCutting: boolean;
@@ -178,6 +180,7 @@ export function Inspector({
         uploading={overlayUploading}
         onUpdate={onUpdateOverlay}
         onDelete={onDeleteOverlay}
+        onApplyToAllClips={onApplyOverlaysToAll}
       />
 
       {/* 영상 편집(트림/컷) + 자동 컷 */}

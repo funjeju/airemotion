@@ -107,12 +107,24 @@ export const OVERLAY_ANIMS: ROverlayAnim[] = [
   "typing",
 ];
 
+export type ROverlayExit = "none" | "fade" | "pop" | "slideUp" | "slideDown";
+export const OVERLAY_EXITS: ROverlayExit[] = [
+  "none",
+  "fade",
+  "pop",
+  "slideUp",
+  "slideDown",
+];
+
 export type ROverlay = {
   id: string;
   type: ROverlayType;
   text: string; // 텍스트형만 사용
   src?: string; // 이미지 클립아트(type==="image")
   anim?: ROverlayAnim;
+  exit?: ROverlayExit;
+  fontWeight?: number; // 텍스트 굵기 500/700/900
+  outline?: boolean; // 텍스트 외곽선
   x: number; // 0~100 (%)
   y: number; // 0~100 (%)
   scale: number; // 0.5~2

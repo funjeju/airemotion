@@ -126,9 +126,13 @@
         "size": "Size",
         "color": "Color",
         "anim": "Entrance",
+        "exit": "Exit",
+        "weight": "Weight",
+        "outline": "Outline",
         "dragHint": "Drag elements to reposition",
         "uploadImage": "Image element",
         "uploading": "Uploading…",
+        "applyToAllClips": "Apply element to all clips",
         "remove": "Remove element",
         "types": {
           "title": "Title",
@@ -147,6 +151,13 @@
           "slideUp": "Up",
           "slideDown": "Down",
           "typing": "Typing"
+        },
+        "exits": {
+          "none": "None",
+          "fade": "Fade",
+          "pop": "Pop",
+          "slideUp": "Up",
+          "slideDown": "Down"
         },
         "defaults": {
           "title": "Title",
