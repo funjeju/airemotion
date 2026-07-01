@@ -3,9 +3,24 @@ import {
   renderMediaOnLambda,
   type AwsRegion,
 } from "@remotion/lambda/client";
-import type { GlideVideoProps } from "@/remotion/types";
+import { totalDurationInFrames, type GlideVideoProps } from "@/remotion/types";
 
 const REGION = (process.env.AWS_REGION ?? "us-east-1") as AwsRegion;
+
+/**
+ * 동시실행 한도 안에서 최대 병렬을 뽑는 framesPerLambda 계산.
+ * 렌더러 수 = ceil(총프레임 / framesPerLambda) ≤ MAX_RENDERERS (오케스트레이터 1 포함해 한도 이하).
+ * 한도 10이면 MAX_RENDERERS=9. 증설되면 env로 올려 속도 향상. 최소 framesPerLambda=5.
+ */
+function framesPerLambdaFor(props: GlideVideoProps): number {
+  const override = Number(process.env.REMOTION_FRAMES_PER_LAMBDA);
+  if (Number.isFinite(override) && override >= 5) return override;
+  const maxRenderers = Number(process.env.REMOTION_MAX_RENDERERS ?? 9);
+  const transFrames =
+    props.transitionType === "none" ? 0 : props.transitionDurationInFrames;
+  const total = totalDurationInFrames(props.clips, transFrames);
+  return Math.max(5, Math.ceil(total / Math.max(1, maxRenderers)));
+}
 
 /** Lambda 렌더에 필요한 배포 정보가 모두 설정됐는지. */
 export function lambdaConfigured(): boolean {
@@ -31,9 +46,8 @@ export async function renderOnLambda(props: GlideVideoProps): Promise<string> {
     codec: "h264",
     privacy: "public",
     downloadBehavior: { type: "download", fileName: "glide.mp4" },
-    // 새 AWS 계정은 동시실행 한도가 낮음(기본 10). 병렬 람다 수를 낮춰 rate limit 회피.
-    // 한도 증설(→5000)이 승인되면 이 값을 낮춰 속도를 올릴 수 있음.
-    framesPerLambda: Number(process.env.REMOTION_FRAMES_PER_LAMBDA ?? 600),
+    // 동시실행 한도 안에서 최대 병렬(렌더러 ≤ 한도-1). 한도 증설되면 REMOTION_MAX_RENDERERS↑.
+    framesPerLambda: framesPerLambdaFor(props),
   });
 
   // 진행 상황 폴링(수십 개 람다 병렬 렌더).
