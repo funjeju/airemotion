@@ -31,6 +31,9 @@ export async function renderOnLambda(props: GlideVideoProps): Promise<string> {
     codec: "h264",
     privacy: "public",
     downloadBehavior: { type: "download", fileName: "glide.mp4" },
+    // 새 AWS 계정은 동시실행 한도가 낮음(기본 10). 병렬 람다 수를 낮춰 rate limit 회피.
+    // 한도 증설(→5000)이 승인되면 이 값을 낮춰 속도를 올릴 수 있음.
+    framesPerLambda: Number(process.env.REMOTION_FRAMES_PER_LAMBDA ?? 600),
   });
 
   // 진행 상황 폴링(수십 개 람다 병렬 렌더).
