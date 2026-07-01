@@ -261,7 +261,10 @@
         "title": "Title",
         "speech": "Hello!",
         "badge": "NEW"
-      }
+      },
+      "textColor": "Text color",
+      "bgColor": "Background",
+      "bgOpacity": "BG opacity"
     },
     "simple": {
       "title": "Title",
@@ -311,7 +314,16 @@
         "image": "Image"
       },
       "duration": "Duration (s)",
-      "size": "Image size"
+      "size": "Image size",
+      "textColor": "Text color",
+      "bgColor": "Background",
+      "bgOpacity": "BG opacity",
+      "capPosition": "Caption position",
+      "capPos": {
+        "top": "Top",
+        "center": "Center",
+        "bottom": "Bottom"
+      }
     }
   },
   "common": {

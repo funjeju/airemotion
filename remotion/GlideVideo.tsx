@@ -29,6 +29,23 @@ import {
   type RTransitionType,
 } from "./types";
 
+/** #rrggbb + alpha → rgba() 문자열. */
+function rgba(hex: string | undefined, alpha: number): string {
+  if (!hex) return `rgba(0,0,0,${alpha})`;
+  const h = hex.replace("#", "");
+  const n =
+    h.length === 3
+      ? h
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : h;
+  const r = parseInt(n.slice(0, 2), 16) || 0;
+  const g = parseInt(n.slice(2, 4), 16) || 0;
+  const b = parseInt(n.slice(4, 6), 16) || 0;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 /** 켄 번스 변환 성분(scale·translate) — CSS 애니메이션 금지, 매 프레임 interpolate로 계산. */
 function kenBurns(
   clip: RClip,
@@ -228,8 +245,8 @@ function OverlayShape({
         <span
           style={{
             display: "inline-block",
-            backgroundColor: o.color,
-            color: "#ffffff",
+            backgroundColor: rgba(o.bgColor ?? o.color, o.bgOpacity ?? 1),
+            color: o.textColor ?? "#ffffff",
             fontSize: height * 0.06,
             fontWeight: o.fontWeight ?? 800,
             ...outline,
@@ -251,8 +268,8 @@ function OverlayShape({
           <span
             style={{
               display: "inline-block",
-              backgroundColor: "#ffffff",
-              color: "#1a1d21",
+              backgroundColor: rgba(o.bgColor ?? "#ffffff", o.bgOpacity ?? 1),
+              color: o.textColor ?? "#1a1d21",
               fontSize: height * 0.034,
               fontWeight: o.fontWeight ?? 600,
               ...outline,
@@ -287,8 +304,8 @@ function OverlayShape({
         <span
           style={{
             display: "inline-block",
-            backgroundColor: o.color,
-            color: "#ffffff",
+            backgroundColor: rgba(o.bgColor ?? o.color, o.bgOpacity ?? 1),
+            color: o.textColor ?? "#ffffff",
             fontSize: height * 0.03,
             fontWeight: o.fontWeight ?? 800,
             ...outline,
@@ -402,7 +419,10 @@ function CaptionView({ caption }: { caption: RClip["caption"] }) {
           maxWidth: "85%",
           textAlign: "center",
           color: caption.color ?? "#ffffff",
-          backgroundColor: caption.bgColor ?? "rgba(0,0,0,0.45)",
+          backgroundColor: rgba(
+            caption.bgColor ?? "#000000",
+            caption.bgOpacity ?? 0.45,
+          ),
           fontSize,
           lineHeight: 1.3,
           fontWeight: 600,

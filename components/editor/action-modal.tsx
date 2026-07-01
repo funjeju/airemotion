@@ -3,7 +3,12 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import type { Animation, Clip, Overlay } from "@/lib/firebase/clips";
+import type {
+  Animation,
+  CaptionOverrides,
+  Clip,
+  Overlay,
+} from "@/lib/firebase/clips";
 import { makeOverlay } from "@/lib/firebase/clips";
 import type { Caption } from "@/lib/firebase/captions";
 import { CaptionReview } from "./caption-review";
@@ -34,6 +39,7 @@ export function ActionModal(props: {
   onClose: () => void;
   onTitle: (ids: string[], text: string) => void;
   onCaption: (ids: string[], text: string) => void;
+  onCaptionStyle: (ids: string[], patch: CaptionOverrides) => void;
   onAnimation: (ids: string[], anim: Animation) => void;
   onDuration: (ids: string[], sec: number) => void;
   onScale: (ids: string[], scale: number) => void;
@@ -202,6 +208,84 @@ export function ActionModal(props: {
                 placeholder={t("captionPlaceholder")}
                 className="w-full rounded-[var(--radius)] border border-line bg-bg px-3 py-2 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               />
+
+              {/* 자막 스타일: 위치·글자색·배경색·투명도 */}
+              {(() => {
+                const ov = scope === "one" ? (picked?.caption.overrides ?? {}) : {};
+                return (
+                  <div className="flex flex-wrap items-end gap-3">
+                    <div>
+                      <span className="block text-[11px] text-muted">
+                        {t("capPosition")}
+                      </span>
+                      <div className="mt-1 flex gap-1">
+                        {(["top", "center", "bottom"] as const).map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() =>
+                              props.onCaptionStyle(targetIds, { position: p })
+                            }
+                            className={`rounded-md border px-2 py-0.5 text-xs transition ${
+                              (ov.position ?? "bottom") === p
+                                ? "border-accent bg-accent-weak text-accent"
+                                : "border-line text-ink hover:border-accent"
+                            }`}
+                          >
+                            {t(`capPos.${p}`)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <label className="text-[11px] text-muted">
+                      {t("textColor")}
+                      <input
+                        key={`tc-${inputKey}`}
+                        type="color"
+                        defaultValue={ov.color ?? "#ffffff"}
+                        onChange={(e) =>
+                          props.onCaptionStyle(targetIds, {
+                            color: e.target.value,
+                          })
+                        }
+                        className="mt-0.5 block h-7 w-10 rounded border border-line bg-surface"
+                      />
+                    </label>
+                    <label className="text-[11px] text-muted">
+                      {t("bgColor")}
+                      <input
+                        key={`bc-${inputKey}`}
+                        type="color"
+                        defaultValue={ov.bgColor ?? "#000000"}
+                        onChange={(e) =>
+                          props.onCaptionStyle(targetIds, {
+                            bgColor: e.target.value,
+                          })
+                        }
+                        className="mt-0.5 block h-7 w-10 rounded border border-line bg-surface"
+                      />
+                    </label>
+                    <label className="text-[11px] text-muted">
+                      {t("bgOpacity")}
+                      <input
+                        key={`bo-${inputKey}`}
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={5}
+                        defaultValue={Math.round((ov.bgOpacity ?? 0.45) * 100)}
+                        onChange={(e) =>
+                          props.onCaptionStyle(targetIds, {
+                            bgOpacity: Number(e.target.value) / 100,
+                          })
+                        }
+                        className="mt-0.5 block w-24 accent-[var(--accent)]"
+                      />
+                    </label>
+                  </div>
+                );
+              })()}
+
               <div className="border-t border-line pt-3">
                 <CaptionReview
                   captions={props.captions}

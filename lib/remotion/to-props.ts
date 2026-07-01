@@ -47,6 +47,7 @@ export function clipsToGlideProps(
       text: c.caption.text ?? "",
       color: c.caption.overrides?.color,
       bgColor: c.caption.overrides?.bgColor,
+      bgOpacity: c.caption.overrides?.bgOpacity,
       fontSize: c.caption.overrides?.fontSize,
       position: c.caption.overrides?.position,
     },

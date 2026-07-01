@@ -51,8 +51,9 @@ export const ANIMATION_AUTO_POOL: AnimationKind[] = [
 
 export type RCaption = {
   text: string;
-  color?: string;
-  bgColor?: string;
+  color?: string; // 글자색
+  bgColor?: string; // 배경색
+  bgOpacity?: number; // 배경 투명도 0~1
   fontSize?: number; // 1080 높이 기준 px
   position?: "top" | "center" | "bottom";
 };
@@ -125,10 +126,13 @@ export type ROverlay = {
   exit?: ROverlayExit;
   fontWeight?: number; // 텍스트 굵기 500/700/900
   outline?: boolean; // 텍스트 외곽선
+  textColor?: string; // 글자색(텍스트형)
+  bgColor?: string; // 배경색(텍스트형)
+  bgOpacity?: number; // 배경 투명도 0~1
   x: number; // 0~100 (%)
   y: number; // 0~100 (%)
   scale: number; // 0.5~2
-  color: string;
+  color: string; // 도형 색(스티커) / 텍스트형 배경 하위호환
 };
 
 export type RClip = {

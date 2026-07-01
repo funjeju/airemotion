@@ -261,7 +261,10 @@
         "title": "제목",
         "speech": "말풍선",
         "badge": "NEW"
-      }
+      },
+      "textColor": "글자색",
+      "bgColor": "배경색",
+      "bgOpacity": "배경 투명도"
     },
     "simple": {
       "title": "타이틀",
@@ -311,7 +314,16 @@
         "image": "이미지"
       },
       "duration": "노출 시간(초)",
-      "size": "이미지 크기"
+      "size": "이미지 크기",
+      "textColor": "글자색",
+      "bgColor": "배경색",
+      "bgOpacity": "배경 투명도",
+      "capPosition": "자막 위치",
+      "capPos": {
+        "top": "위",
+        "center": "가운데",
+        "bottom": "아래"
+      }
     }
   },
   "common": {

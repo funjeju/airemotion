@@ -55,6 +55,7 @@ export type Animation = AnimationKind;
 export type CaptionOverrides = {
   color?: string;
   bgColor?: string;
+  bgOpacity?: number;
   fontSize?: number;
   position?: "top" | "center" | "bottom";
 };

@@ -374,6 +374,25 @@ export default function EditorPage({
     scheduleBatch("s-caption", updates);
   }
 
+  function setCaptionStyleFor(ids: string[], patch: CaptionOverrides) {
+    const updates = clips
+      .filter((c) => ids.includes(c.id))
+      .map((c) => ({
+        id: c.id,
+        caption: {
+          text: c.caption.text,
+          overrides: { ...(c.caption.overrides ?? {}), ...patch },
+        },
+      }));
+    setClips((cur) =>
+      cur.map((c) => {
+        const u = updates.find((x) => x.id === c.id);
+        return u ? { ...c, caption: u.caption } : c;
+      }),
+    );
+    scheduleBatch("s-capstyle", updates);
+  }
+
   function setAnimationFor(ids: string[], anim: Animation) {
     const updates = clips
       .filter((c) => ids.includes(c.id) && c.type === "image")
@@ -965,6 +984,7 @@ export default function EditorPage({
           onClose={() => setActiveAction(null)}
           onTitle={setTitleFor}
           onCaption={setCaptionFor}
+          onCaptionStyle={setCaptionStyleFor}
           onAnimation={setAnimationFor}
           onDuration={setDurationFor}
           onScale={setScaleFor}

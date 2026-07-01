@@ -32,9 +32,8 @@ const EMOJIS = [
   "😀", "😍", "😂", "👍", "🎉", "❤️", "🔥", "⭐",
   "✅", "💯", "🥳", "😎", "🙏", "👏", "💡", "📌",
 ];
-const COLOR_TYPES: ROverlayType[] = [
-  "title", "badge", "arrow", "star", "heart", "circle",
-];
+const SHAPE_TYPES: ROverlayType[] = ["arrow", "star", "heart", "circle"];
+const TEXTBG_TYPES: ROverlayType[] = ["title", "speech", "badge"];
 
 export function OverlayEditor({
   clip,
@@ -291,8 +290,8 @@ export function OverlayEditor({
                     />
                   </label>
 
-                  {/* 색 (해당 타입만) */}
-                  {COLOR_TYPES.includes(o.type) ? (
+                  {/* 스티커 색(도형) */}
+                  {SHAPE_TYPES.includes(o.type) ? (
                     <label className="text-[11px] text-muted">
                       {t("color")}
                       <input
@@ -306,6 +305,50 @@ export function OverlayEditor({
                     </label>
                   ) : null}
                 </div>
+
+                {/* 텍스트 요소: 글자색·배경색·투명도 */}
+                {TEXTBG_TYPES.includes(o.type) ? (
+                  <div className="mt-2 flex flex-wrap items-end gap-3">
+                    <label className="text-[11px] text-muted">
+                      {t("textColor")}
+                      <input
+                        type="color"
+                        value={o.textColor ?? "#ffffff"}
+                        onChange={(e) =>
+                          onUpdate(o.id, { textColor: e.target.value })
+                        }
+                        className="mt-0.5 block h-7 w-10 rounded border border-line bg-surface"
+                      />
+                    </label>
+                    <label className="text-[11px] text-muted">
+                      {t("bgColor")}
+                      <input
+                        type="color"
+                        value={o.bgColor ?? o.color ?? "#5654d4"}
+                        onChange={(e) =>
+                          onUpdate(o.id, { bgColor: e.target.value })
+                        }
+                        className="mt-0.5 block h-7 w-10 rounded border border-line bg-surface"
+                      />
+                    </label>
+                    <label className="text-[11px] text-muted">
+                      {t("bgOpacity")} {Math.round((o.bgOpacity ?? 1) * 100)}%
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={5}
+                        value={Math.round((o.bgOpacity ?? 1) * 100)}
+                        onChange={(e) =>
+                          onUpdate(o.id, {
+                            bgOpacity: Number(e.target.value) / 100,
+                          })
+                        }
+                        className="mt-0.5 block w-24 accent-[var(--accent)]"
+                      />
+                    </label>
+                  </div>
+                ) : null}
               </li>
             );
           })}
