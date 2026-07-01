@@ -71,6 +71,7 @@ export type Clip = {
   caption: { text: string; overrides: CaptionOverrides | null };
   scale?: number; // 화면 내 이미지 크기(0.5~1, 기본 1=꽉 채움)
   overlays?: Overlay[]; // 말풍선·제목·스티커 등 요소
+  muted?: boolean; // 오디오 트랙 on/off
   // 영상 트림(초). 미설정 시 [0, durationSec] 전체.
   trimStart?: number;
   trimEnd?: number;
@@ -216,6 +217,7 @@ export async function updateClip(
       | "durationSec"
       | "scale"
       | "overlays"
+      | "muted"
       | "trimStart"
       | "trimEnd"
     >

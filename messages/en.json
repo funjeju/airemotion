@@ -79,9 +79,11 @@
     "music": {
       "title": "Background music",
       "track": "Track",
-      "inUse": "In use",
+      "on": "On",
+      "off": "Off",
       "remove": "Remove music",
-      "firstOnly": "If you add several, the first track is used as background music."
+      "timeline": "Audio timeline",
+      "multiNote": "Enabled tracks play together. Toggle to turn each on or off."
     },
     "tone": {
       "title": "Video mood",

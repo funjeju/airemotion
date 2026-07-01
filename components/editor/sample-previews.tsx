@@ -57,7 +57,7 @@ export function EffectPreview({ animation }: { animation: AnimationKind }) {
     };
     const p: GlideVideoProps = {
       clips: [clip],
-      audioSrc: null,
+      audioTracks: [],
       subtitles: [],
       transitionType: "none",
       transitionDirection: "from-left",
@@ -89,7 +89,7 @@ export function TransitionPreview({
     const transFrames = type === "none" ? 0 : 15;
     const p: GlideVideoProps = {
       clips: [mk(SAMPLE_A), mk(SAMPLE_B)],
-      audioSrc: null,
+      audioTracks: [],
       subtitles: [],
       transitionType: type,
       transitionDirection: direction,

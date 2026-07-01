@@ -57,6 +57,7 @@ import { AspectControl } from "@/components/editor/aspect-control";
 import { TransitionControl } from "@/components/editor/transition-control";
 import { CaptionReview } from "@/components/editor/caption-review";
 import { MusicTrack } from "@/components/editor/music-track";
+import { AudioTimeline } from "@/components/editor/audio-timeline";
 import { VideoTrimModal } from "@/components/editor/video-trim-modal";
 import { RemotionPreview } from "@/components/editor/remotion-preview";
 
@@ -357,6 +358,14 @@ export default function EditorPage({
     setClips((cur) => cur.filter((c) => c.id !== target.id));
     if (selectedId === target.id) setSelectedId(null);
     await deleteClip(projectId, target);
+  }
+
+  function handleToggleMute(clip: Clip) {
+    const muted = !clip.muted;
+    setClips((cur) =>
+      cur.map((c) => (c.id === clip.id ? { ...c, muted } : c)),
+    );
+    updateClip(projectId, clip.id, { muted });
   }
 
   async function handleDelete() {
@@ -680,6 +689,9 @@ export default function EditorPage({
             seekClipId={selectedId}
           />
 
+          {/* 오디오 타임라인 (활성 배경음악) */}
+          <AudioTimeline audioClips={audioClips} />
+
           {/* 영상 분위기(의도 프롬프트) → 톤 자동 적용 */}
           <ProjectTone
             prompt={intentPrompt}
@@ -705,7 +717,11 @@ export default function EditorPage({
           </section>
 
           {/* 배경음악 목록 */}
-          <MusicTrack audioClips={audioClips} onDelete={handleDeleteClip} />
+          <MusicTrack
+            audioClips={audioClips}
+            onToggle={handleToggleMute}
+            onDelete={handleDeleteClip}
+          />
 
           {/* ── 복잡 모드 전용: 디테일 편집 ── */}
           {mode === "advanced" && (

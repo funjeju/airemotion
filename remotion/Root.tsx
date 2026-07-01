@@ -36,7 +36,7 @@ export function RemotionRoot() {
       defaultProps={
         {
           clips: [],
-          audioSrc: null,
+          audioTracks: [],
           subtitles: [],
           transitionType: "fade",
           transitionDirection: "from-left",

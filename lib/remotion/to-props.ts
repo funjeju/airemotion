@@ -32,7 +32,10 @@ export function clipsToGlideProps(
   aspectRatio: AspectRatio = "16:9",
 ): GlideVideoProps {
   const visuals = clips.filter((c) => c.type === "image" || c.type === "video");
-  const audio = clips.find((c) => c.type === "audio");
+  // 여러 배경음악 동시 재생. 음소거(muted)된 트랙은 제외.
+  const audioTracks = clips
+    .filter((c) => c.type === "audio" && !c.muted)
+    .map((c) => c.downloadURL);
 
   const rclips: RClip[] = visuals.map((c) => ({
     type: c.type as "image" | "video",
@@ -59,7 +62,7 @@ export function clipsToGlideProps(
 
   return {
     clips: rclips,
-    audioSrc: audio?.downloadURL ?? null,
+    audioTracks,
     subtitles,
     transitionType: transition.type,
     transitionDirection: transition.direction,

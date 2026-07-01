@@ -500,7 +500,7 @@ function BackgroundAudio({ src }: { src: string }) {
 
 export function GlideVideo({
   clips,
-  audioSrc,
+  audioTracks,
   subtitles,
   transitionType,
   transitionDirection,
@@ -541,7 +541,9 @@ export function GlideVideo({
         })}
       </TransitionSeries>
       {subtitles.length > 0 ? <SubtitleTrack subtitles={subtitles} /> : null}
-      {audioSrc ? <BackgroundAudio src={audioSrc} /> : null}
+      {audioTracks.map((src, i) => (
+        <BackgroundAudio key={`${src}-${i}`} src={src} />
+      ))}
     </AbsoluteFill>
   );
 }

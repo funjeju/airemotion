@@ -191,7 +191,7 @@ export const TRANSITION_FRAMES_BY_SPEED: Record<TransitionSpeed, number> = {
 
 export type GlideVideoProps = {
   clips: RClip[];
-  audioSrc: string | null;
+  audioTracks: string[]; // 여러 배경음악 동시 재생(믹스)
   subtitles: RSubtitle[];
   transitionType: RTransitionType;
   transitionDirection: RTransitionDirection;
