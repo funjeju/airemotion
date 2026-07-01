@@ -197,7 +197,7 @@
       "again": "Render again",
       "error": "Render failed. Please try again.",
       "planRequired": "Cloud rendering requires a Pro plan.",
-      "cloudUnavailable": "Cloud rendering is coming soon.",
+      "cloudUnavailable": "Rendering isn't available on the deployed site yet. Render locally or set up cloud rendering (AWS).",
       "note": "Combines photos, video, captions, and music into an MP4. May take a while depending on length.",
       "endFade": "Fade out at the end"
     },

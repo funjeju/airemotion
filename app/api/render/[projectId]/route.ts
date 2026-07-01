@@ -43,6 +43,13 @@ export async function POST(
 
   // 2.5) 렌더 공급자 + 플랜 게이팅
   const provider = resolveRenderProvider();
+  // Vercel 등 서버리스에선 로컬 렌더(헤드리스 Chrome) 불가 → 깔끔히 안내.
+  if (provider === "local" && process.env.VERCEL) {
+    return NextResponse.json(
+      { error: "local-render-unavailable" },
+      { status: 501 },
+    );
+  }
   if (provider === "lambda") {
     const userSnap = await adminDb().collection("users").doc(uid).get();
     const plan = (userSnap.data()?.plan ?? "free") as UserPlan;

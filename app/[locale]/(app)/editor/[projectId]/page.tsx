@@ -415,7 +415,10 @@ export default function EditorPage({
         };
         if (data.error === "plan-required") {
           setRenderError(t("render.planRequired"));
-        } else if (data.error === "cloud-render-unavailable") {
+        } else if (
+          data.error === "cloud-render-unavailable" ||
+          data.error === "local-render-unavailable"
+        ) {
           setRenderError(t("render.cloudUnavailable"));
         } else {
           setRenderError(t("render.error"));
