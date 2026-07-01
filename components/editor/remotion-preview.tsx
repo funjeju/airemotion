@@ -23,20 +23,22 @@ export function RemotionPreview({
   captions,
   transition,
   aspectRatio,
+  endFadeOut,
   seekClipId,
 }: {
   clips: Clip[];
   captions: Caption[];
   transition: TransitionSettings;
   aspectRatio: AspectRatio;
+  endFadeOut: boolean;
   seekClipId?: string | null;
 }) {
   const t = useTranslations("editor.preview");
   const dims = DIMENSIONS[aspectRatio];
   const playerRef = useRef<PlayerRef>(null);
   const props = useMemo(
-    () => clipsToGlideProps(clips, captions, transition, aspectRatio),
-    [clips, captions, transition, aspectRatio],
+    () => clipsToGlideProps(clips, captions, transition, aspectRatio, endFadeOut),
+    [clips, captions, transition, aspectRatio, endFadeOut],
   );
   const duration = useMemo(
     () =>

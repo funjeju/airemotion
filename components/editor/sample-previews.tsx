@@ -63,6 +63,7 @@ export function EffectPreview({ animation }: { animation: AnimationKind }) {
       transitionDirection: "from-left",
       transitionDurationInFrames: 0,
       aspectRatio: "16:9",
+      endFadeOut: false,
     };
     return { props: p, duration: totalDurationInFrames(p.clips, 0) };
   }, [animation]);
@@ -95,6 +96,7 @@ export function TransitionPreview({
       transitionDirection: direction,
       transitionDurationInFrames: transFrames,
       aspectRatio: "16:9",
+      endFadeOut: false,
     };
     return { props: p, duration: totalDurationInFrames(p.clips, transFrames) };
   }, [type, direction]);

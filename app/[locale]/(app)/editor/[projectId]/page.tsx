@@ -53,6 +53,7 @@ import { UploadDropzone } from "@/components/editor/upload-dropzone";
 import { Filmstrip } from "@/components/editor/filmstrip";
 import { Inspector } from "@/components/editor/inspector";
 import { ProjectTone } from "@/components/editor/project-tone";
+import { SimpleClipPanel } from "@/components/editor/simple-clip-panel";
 import { AspectControl } from "@/components/editor/aspect-control";
 import { TransitionControl } from "@/components/editor/transition-control";
 import { CaptionReview } from "@/components/editor/caption-review";
@@ -87,6 +88,7 @@ export default function EditorPage({
   const [tone, setTone] = useState<Tone>("calm");
   const [applyingTone, setApplyingTone] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  const [endFadeOut, setEndFadeOut] = useState(true);
   const [mode, setMode] = useState<"simple" | "advanced">("simple");
   const [trimClipId, setTrimClipId] = useState<string | null>(null);
   const [autoCutting, setAutoCutting] = useState(false);
@@ -123,6 +125,7 @@ export default function EditorPage({
         setIntentPrompt(project.intentPrompt ?? "");
         setTone(project.effectTheme ?? "calm");
         setAspectRatio(project.aspectRatio ?? "16:9");
+        setEndFadeOut(project.endFadeOut ?? true);
       }
       setLoading(false);
     })();
@@ -294,6 +297,23 @@ export default function EditorPage({
 
   function handleAddEmoji(emoji: string) {
     addOverlayToSelected(makeOverlay("emoji", emoji));
+  }
+
+  // 단순 모드 타이틀 — 선택 클립의 title 오버레이 하나를 만들거나 수정.
+  const selectedTitle =
+    selectedClip?.overlays?.find((o) => o.type === "title")?.text ?? "";
+
+  function handleSetTitle(text: string) {
+    if (!selectedClip) return;
+    const overlays = selectedClip.overlays ?? [];
+    const existing = overlays.find((o) => o.type === "title");
+    const next = existing
+      ? overlays.map((o) => (o.id === existing.id ? { ...o, text } : o))
+      : [...overlays, makeOverlay("title", text)];
+    setClips((cur) =>
+      cur.map((c) => (c.id === selectedClip.id ? { ...c, overlays: next } : c)),
+    );
+    saveOverlays(selectedClip.id, next);
   }
 
   async function handleUploadOverlayImage(file: File) {
@@ -494,6 +514,12 @@ export default function EditorPage({
     updateProjectSettings(projectId, { aspectRatio: next });
   }
 
+  function handleEndFadeToggle() {
+    const next = !endFadeOut;
+    setEndFadeOut(next);
+    updateProjectSettings(projectId, { endFadeOut: next });
+  }
+
   function handleDuration(sec: number) {
     if (!selectedClip) return;
     const durationSec = Math.min(30, Math.max(0.5, sec || 0.5));
@@ -686,6 +712,7 @@ export default function EditorPage({
             captions={captions}
             transition={transition}
             aspectRatio={aspectRatio}
+            endFadeOut={endFadeOut}
             seekClipId={selectedId}
           />
 
@@ -722,6 +749,17 @@ export default function EditorPage({
             onToggle={handleToggleMute}
             onDelete={handleDeleteClip}
           />
+
+          {/* 단순 모드: 자막·타이틀만 */}
+          {mode === "simple" && (
+            <SimpleClipPanel
+              hasSelection={!!selectedClip}
+              caption={selectedClip?.caption.text ?? ""}
+              title={selectedTitle}
+              onCaption={handleCaptionText}
+              onTitle={handleSetTitle}
+            />
+          )}
 
           {/* ── 복잡 모드 전용: 디테일 편집 ── */}
           {mode === "advanced" && (
@@ -775,6 +813,15 @@ export default function EditorPage({
 
           {/* 영상 만들기 (실제 MP4 렌더) */}
           <section className="rounded-2xl border border-line bg-surface p-5">
+            <label className="mb-3 flex items-center gap-2 text-sm text-ink">
+              <input
+                type="checkbox"
+                checked={endFadeOut}
+                onChange={handleEndFadeToggle}
+                className="accent-[var(--accent)]"
+              />
+              {t("render.endFade")}
+            </label>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-muted">{t("render.note")}</p>
               <div className="flex items-center gap-3">

@@ -30,6 +30,7 @@ export function clipsToGlideProps(
   captions: Caption[] = [],
   transition: TransitionSettings = DEFAULT_TRANSITION,
   aspectRatio: AspectRatio = "16:9",
+  endFadeOut = true,
 ): GlideVideoProps {
   const visuals = clips.filter((c) => c.type === "image" || c.type === "video");
   // 여러 배경음악 동시 재생. 음소거(muted)된 트랙은 제외.
@@ -68,5 +69,6 @@ export function clipsToGlideProps(
     transitionDirection: transition.direction,
     transitionDurationInFrames: TRANSITION_FRAMES_BY_SPEED[transition.speed],
     aspectRatio,
+    endFadeOut,
   };
 }

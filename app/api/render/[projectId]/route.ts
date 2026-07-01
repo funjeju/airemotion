@@ -76,6 +76,7 @@ export async function POST(
       speed: pdata.transitionSpeed ?? "normal",
     },
     pdata.aspectRatio ?? "16:9",
+    pdata.endFadeOut ?? true,
   );
   if (props.clips.length === 0) {
     return NextResponse.json({ error: "no-clips" }, { status: 400 });

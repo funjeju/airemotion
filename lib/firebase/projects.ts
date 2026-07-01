@@ -31,6 +31,7 @@ export type Project = {
   transitionDirection?: RTransitionDirection;
   transitionSpeed?: TransitionSpeed;
   aspectRatio?: AspectRatio;
+  endFadeOut?: boolean;
   createdAt: { seconds: number } | null;
   updatedAt: { seconds: number } | null;
 };
@@ -62,6 +63,7 @@ export async function createProject(
     transitionDirection: "from-left",
     transitionSpeed: "normal",
     aspectRatio: "16:9",
+    endFadeOut: true,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -85,6 +87,7 @@ export async function updateProjectSettings(
       | "transitionDirection"
       | "transitionSpeed"
       | "aspectRatio"
+      | "endFadeOut"
       | "intentPrompt"
       | "effectTheme"
     >

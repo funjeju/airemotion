@@ -198,7 +198,8 @@
       "error": "Render failed. Please try again.",
       "planRequired": "Cloud rendering requires a Pro plan.",
       "cloudUnavailable": "Cloud rendering is coming soon.",
-      "note": "Combines photos, video, captions, and music into an MP4. May take a while depending on length."
+      "note": "Combines photos, video, captions, and music into an MP4. May take a while depending on length.",
+      "endFade": "Fade out at the end"
     },
     "captions": {
       "title": "Auto captions",
@@ -259,6 +260,14 @@
         "speech": "Hello!",
         "badge": "NEW"
       }
+    },
+    "simple": {
+      "title": "Title",
+      "titlePlaceholder": "Big title for this clip",
+      "caption": "Caption",
+      "captionPlaceholder": "Caption for this clip",
+      "hint": "Title & caption apply only to the selected clip.",
+      "selectHint": "Select a clip in the timeline above to add a caption or title."
     }
   },
   "common": {

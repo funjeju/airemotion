@@ -42,6 +42,7 @@ export function RemotionRoot() {
           transitionDirection: "from-left",
           transitionDurationInFrames: TRANSITION_FRAMES_BY_SPEED.normal,
           aspectRatio: "16:9",
+          endFadeOut: true,
         } satisfies GlideVideoProps
       }
       calculateMetadata={calculateMetadata}

@@ -197,6 +197,7 @@ export type GlideVideoProps = {
   transitionDirection: RTransitionDirection;
   transitionDurationInFrames: number;
   aspectRatio: AspectRatio;
+  endFadeOut: boolean; // 영상 끝 검정 페이드아웃
 };
 
 /** 전환은 인접 클립을 겹치므로 총 길이에서 전환 프레임을 뺀다(컷은 겹침 없음). */

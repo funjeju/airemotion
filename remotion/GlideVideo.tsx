@@ -498,6 +498,22 @@ function BackgroundAudio({ src }: { src: string }) {
   );
 }
 
+/** 영상 끝 검정 페이드아웃(여운). */
+function EndFade() {
+  const frame = useCurrentFrame();
+  const { durationInFrames, fps } = useVideoConfig();
+  const dur = Math.min(fps * 1, durationInFrames * 0.3);
+  const opacity = interpolate(
+    frame,
+    [durationInFrames - dur, durationInFrames],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  return (
+    <AbsoluteFill style={{ backgroundColor: "black", opacity }} />
+  );
+}
+
 export function GlideVideo({
   clips,
   audioTracks,
@@ -505,6 +521,7 @@ export function GlideVideo({
   transitionType,
   transitionDirection,
   transitionDurationInFrames,
+  endFadeOut,
 }: GlideVideoProps) {
   const { width, height } = useVideoConfig();
   // '컷'(none) 또는 전환 길이 0이면 전환 없이 순차 재생.
@@ -544,6 +561,7 @@ export function GlideVideo({
       {audioTracks.map((src, i) => (
         <BackgroundAudio key={`${src}-${i}`} src={src} />
       ))}
+      {endFadeOut ? <EndFade /> : null}
     </AbsoluteFill>
   );
 }
