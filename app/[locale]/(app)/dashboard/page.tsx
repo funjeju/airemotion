@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/auth-context";
 import {
   createProject,
   listProjects,
+  updateProjectSettings,
   type Project,
 } from "@/lib/firebase/projects";
 
@@ -24,6 +25,8 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
 
   const refresh = useCallback(async () => {
     if (!user) return;
@@ -45,6 +48,20 @@ export default function DashboardPage() {
     } finally {
       setCreating(false);
     }
+  }
+
+  function startRename(p: Project) {
+    setEditingId(p.id);
+    setEditTitle(p.title);
+  }
+
+  async function saveRename(id: string) {
+    const title = editTitle.trim() || t("untitled");
+    setProjects((cur) =>
+      cur.map((p) => (p.id === id ? { ...p, title } : p)),
+    );
+    setEditingId(null);
+    await updateProjectSettings(id, { title });
   }
 
   return (
@@ -73,18 +90,50 @@ export default function DashboardPage() {
       ) : (
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => (
-            <li key={p.id}>
-              <Link
-                href={`/editor/${p.id}`}
-                className="block rounded-2xl border border-line bg-surface p-5 transition hover:-translate-y-0.5 hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            <li
+              key={p.id}
+              className="group rounded-2xl border border-line bg-surface p-5 transition hover:border-accent hover:shadow-md"
+            >
+              {editingId === p.id ? (
+                <input
+                  autoFocus
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  onBlur={() => saveRename(p.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveRename(p.id);
+                    if (e.key === "Escape") setEditingId(null);
+                  }}
+                  className="w-full rounded-[var(--radius)] border border-accent bg-bg px-2 py-1 font-display text-lg font-medium text-ink focus-visible:outline-none"
+                />
+              ) : (
+                <div className="flex items-start justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/editor/${p.id}`)}
+                    className="flex-1 text-left font-display text-lg font-medium text-ink transition hover:text-accent focus-visible:outline-none"
+                  >
+                    {p.title}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => startRename(p)}
+                    aria-label={t("rename")}
+                    title={t("rename")}
+                    className="shrink-0 text-muted opacity-0 transition hover:text-accent group-hover:opacity-100"
+                  >
+                    ✎
+                  </button>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => router.push(`/editor/${p.id}`)}
+                className="mt-2 block font-mono text-xs uppercase tracking-wide text-muted transition hover:text-accent"
               >
-                <h3 className="font-display text-lg font-medium text-ink">
-                  {p.title}
-                </h3>
-                <p className="mt-2 font-mono text-xs uppercase tracking-wide text-muted">
-                  {t(`status.${STATUS_KEY[p.status]}`)}
-                </p>
-              </Link>
+                {t(`status.${STATUS_KEY[p.status]}`)}
+              </button>
             </li>
           ))}
         </ul>

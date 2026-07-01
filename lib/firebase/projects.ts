@@ -80,6 +80,7 @@ export async function updateProjectSettings(
   patch: Partial<
     Pick<
       Project,
+      | "title"
       | "transitionType"
       | "transitionDirection"
       | "transitionSpeed"

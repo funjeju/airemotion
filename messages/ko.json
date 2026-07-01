@@ -40,6 +40,7 @@
     "creating": "만드는 중…",
     "loading": "불러오는 중…",
     "untitled": "제목 없는 프로젝트",
+    "rename": "이름 변경",
     "emptyTitle": "아직 프로젝트가 없어요.",
     "emptyDesc": "새 프로젝트를 만들어 사진을 올려 시작하세요.",
     "status": {
@@ -52,6 +53,8 @@
   "editor": {
     "backToDashboard": "대시보드로",
     "loading": "불러오는 중…",
+    "titleLabel": "프로젝트 제목",
+    "titlePlaceholder": "제목을 입력하세요",
     "mode": {
       "simple": "단순",
       "advanced": "복잡"

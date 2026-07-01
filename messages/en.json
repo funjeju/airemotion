@@ -40,6 +40,7 @@
     "creating": "Creating…",
     "loading": "Loading…",
     "untitled": "Untitled project",
+    "rename": "Rename",
     "emptyTitle": "No projects yet.",
     "emptyDesc": "Create a new project and upload photos to begin.",
     "status": {
@@ -52,6 +53,8 @@
   "editor": {
     "backToDashboard": "Back to dashboard",
     "loading": "Loading…",
+    "titleLabel": "Project title",
+    "titlePlaceholder": "Enter a title",
     "mode": {
       "simple": "Simple",
       "advanced": "Advanced"

@@ -76,6 +76,7 @@ export default function EditorPage({
   const [captionError, setCaptionError] = useState<string | null>(null);
   const [transition, setTransition] =
     useState<TransitionSettings>(DEFAULT_TRANSITION);
+  const [title, setTitle] = useState("");
   const [intentPrompt, setIntentPrompt] = useState("");
   const [tone, setTone] = useState<Tone>("calm");
   const [applyingTone, setApplyingTone] = useState(false);
@@ -111,6 +112,7 @@ export default function EditorPage({
             project.transitionDirection ?? DEFAULT_TRANSITION.direction,
           speed: project.transitionSpeed ?? DEFAULT_TRANSITION.speed,
         });
+        setTitle(project.title ?? "");
         setIntentPrompt(project.intentPrompt ?? "");
         setTone(project.effectTheme ?? "calm");
         setAspectRatio(project.aspectRatio ?? "16:9");
@@ -362,6 +364,21 @@ export default function EditorPage({
     updateProjectSettings(projectId, patch);
   }
 
+  function handleTitleChange(next: string) {
+    setTitle(next);
+    if (promptTimer.current) clearTimeout(promptTimer.current);
+    // 제목 저장은 프롬프트 타이머와 별개 키로.
+    const timers = saveTimers.current;
+    if (timers.has("title")) clearTimeout(timers.get("title"));
+    timers.set(
+      "title",
+      setTimeout(() => {
+        updateProjectSettings(projectId, { title: next.trim() || "제목 없는 프로젝트" });
+        timers.delete("title");
+      }, 500),
+    );
+  }
+
   function handleAspectChange(next: AspectRatio) {
     setAspectRatio(next);
     updateProjectSettings(projectId, { aspectRatio: next });
@@ -534,6 +551,17 @@ export default function EditorPage({
           ))}
         </div>
       </div>
+
+      {!loading && clips.length >= 0 ? (
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => handleTitleChange(e.target.value)}
+          placeholder={t("titlePlaceholder")}
+          aria-label={t("titleLabel")}
+          className="mt-3 w-full max-w-xl rounded-[var(--radius)] border border-transparent bg-transparent px-2 py-1 font-display text-2xl font-semibold text-ink transition hover:border-line focus:border-accent focus-visible:outline-none"
+        />
+      ) : null}
 
       {loading ? (
         <p className="mt-10 text-sm text-muted">{t("loading")}</p>
